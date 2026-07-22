@@ -8,9 +8,9 @@
 
   <style>
     * {
-      box-sizing: border-box;
       margin: 0;
       padding: 0;
+      box-sizing: border-box;
       font-family: Arial, sans-serif;
     }
 
@@ -164,8 +164,17 @@
     .cart-item {
       display: flex;
       justify-content: space-between;
+      align-items: center;
       padding: 13px 0;
       border-bottom: 1px solid #eee;
+    }
+
+    .quantity button {
+      padding: 5px 10px;
+      border: 1px solid #ddd;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
     }
 
     .total {
@@ -231,3 +240,690 @@
       margin-top: 60px;
       padding: 30px;
       text-align: center;
+      background: #111;
+      color: white;
+    }
+
+    @media (max-width: 600px) {
+      .container {
+        width: 92%;
+      }
+
+      .hero {
+        padding: 60px 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="logo">
+      Fest<span>Cart</span>
+    </div>
+
+    <button class="cart-btn" onclick="goToCart()">
+      🛒 Cart (<span id="cartCount">0</span>)
+    </button>
+  </header>
+
+
+  <section class="hero">
+
+    <h1>
+      Pre-Book.<br>
+      <span>Skip The Queue.</span>
+    </h1>
+
+    <p>
+      Order your favourite drinks in advance and collect them directly
+      from the counter at the fest.
+    </p>
+
+    <button onclick="goToMenu()">
+      Explore Menu
+    </button>
+
+  </section>
+
+
+  <main class="container">
+
+    <section id="menu">
+
+      <div class="heading">
+        <h2>🥤 Today's Menu</h2>
+        <p>Freshly prepared for College Fest 2026</p>
+      </div>
+
+
+      <div class="menu">
+
+
+        <div class="card">
+
+          <div class="product-image">
+            🍫
+          </div>
+
+          <div class="card-content">
+
+            <h3>
+              Chocolate Blast
+            </h3>
+
+            <p>
+              Rich and creamy chocolate shake.
+            </p>
+
+            <div class="price-row">
+
+              <span class="price">
+                ₹80
+              </span>
+
+              <button
+                class="add-btn"
+                onclick="addToCart('Chocolate Blast', 80)"
+              >
+                Add +
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <div class="product-image">
+            🍓
+          </div>
+
+          <div class="card-content">
+
+            <h3>
+              Strawberry Cream
+            </h3>
+
+            <p>
+              Sweet strawberry shake with creamy flavour.
+            </p>
+
+            <div class="price-row">
+
+              <span class="price">
+                ₹90
+              </span>
+
+              <button
+                class="add-btn"
+                onclick="addToCart('Strawberry Cream', 90)"
+              >
+                Add +
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <div class="product-image">
+            🥭
+          </div>
+
+          <div class="card-content">
+
+            <h3>
+              Mango Magic
+            </h3>
+
+            <p>
+              Fresh mango shake with tropical taste.
+            </p>
+
+            <div class="price-row">
+
+              <span class="price">
+                ₹70
+              </span>
+
+              <button
+                class="add-btn"
+                onclick="addToCart('Mango Magic', 70)"
+              >
+                Add +
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="card">
+
+          <div class="product-image">
+            🍌
+          </div>
+
+          <div class="card-content">
+
+            <h3>
+              Banana Cream
+            </h3>
+
+            <p>
+              Classic banana shake, smooth and delicious.
+            </p>
+
+            <div class="price-row">
+
+              <span class="price">
+                ₹60
+              </span>
+
+              <button
+                class="add-btn"
+                onclick="addToCart('Banana Cream', 60)"
+              >
+                Add +
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+      </div>
+
+    </section>
+
+
+    <section class="box" id="cartBox">
+
+      <h2>
+        🛒 Your Pre-Booking
+      </h2>
+
+      <div id="cartItems">
+
+        <p style="color:#777;margin-top:15px;">
+          Your cart is empty.
+        </p>
+
+      </div>
+
+
+      <div class="total">
+
+        <span>
+          Total
+        </span>
+
+        <span>
+          ₹<span id="total">0</span>
+        </span>
+
+      </div>
+
+
+      <button
+        class="main-btn"
+        onclick="showBooking()"
+      >
+        Continue to Pre-Book
+      </button>
+
+    </section>
+
+
+    <section
+      class="box booking"
+      id="booking"
+    >
+
+      <h2>
+        🎟️ Confirm Your Pre-Booking
+      </h2>
+
+      <br>
+
+
+      <label>
+        Your Name
+      </label>
+
+      <input
+        id="name"
+        type="text"
+        placeholder="Enter your name"
+      >
+
+
+      <label>
+        Mobile Number
+      </label>
+
+      <input
+        id="phone"
+        type="tel"
+        placeholder="Enter mobile number"
+      >
+
+
+      <label>
+        Pickup Time
+      </label>
+
+      <select id="time">
+
+        <option value="">
+          Select pickup time
+        </option>
+
+        <option>
+          11:00 AM
+        </option>
+
+        <option>
+          12:00 PM
+        </option>
+
+        <option>
+          1:00 PM
+        </option>
+
+        <option>
+          2:00 PM
+        </option>
+
+        <option>
+          3:00 PM
+        </option>
+
+        <option>
+          4:00 PM
+        </option>
+
+        <option>
+          5:00 PM
+        </option>
+
+      </select>
+
+
+      <button
+        class="confirm-btn"
+        onclick="confirmBooking()"
+      >
+        Confirm Pre-Booking
+      </button>
+
+
+      <div
+        class="success"
+        id="confirmation"
+      ></div>
+
+    </section>
+
+  </main>
+
+
+  <footer>
+
+    <h3>
+      FestCart
+    </h3>
+
+    <p>
+      Scan. Pre-Book. Pick Up.
+    </p>
+
+  </footer>
+
+
+  <script>
+
+    let cart = [];
+
+
+    function addToCart(name, price) {
+
+      let existingItem =
+        cart.find(item => item.name === name);
+
+
+      if (existingItem) {
+
+        existingItem.quantity++;
+
+      } else {
+
+        cart.push({
+
+          name: name,
+
+          price: price,
+
+          quantity: 1
+
+        });
+
+      }
+
+
+      updateCart();
+
+    }
+
+
+    function changeQuantity(index, change) {
+
+      cart[index].quantity += change;
+
+
+      if (cart[index].quantity <= 0) {
+
+        cart.splice(index, 1);
+
+      }
+
+
+      updateCart();
+
+    }
+
+
+    function updateCart() {
+
+      let count = 0;
+
+      let total = 0;
+
+
+      cart.forEach(item => {
+
+        count += item.quantity;
+
+        total +=
+          item.price *
+          item.quantity;
+
+      });
+
+
+      document
+        .getElementById("cartCount")
+        .innerText = count;
+
+
+      document
+        .getElementById("total")
+        .innerText = total;
+
+
+      let cartItems =
+        document.getElementById("cartItems");
+
+
+      if (cart.length === 0) {
+
+        cartItems.innerHTML = `
+
+          <p style="color:#777;margin-top:15px;">
+            Your cart is empty.
+          </p>
+
+        `;
+
+        return;
+
+      }
+
+
+      cartItems.innerHTML = "";
+
+
+      cart.forEach((item, index) => {
+
+        cartItems.innerHTML += `
+
+          <div class="cart-item">
+
+            <div>
+
+              <strong>
+                ${item.name}
+              </strong>
+
+              <br>
+
+              <small>
+                ₹${item.price} × ${item.quantity}
+              </small>
+
+            </div>
+
+
+            <div class="quantity">
+
+              <button
+                onclick="changeQuantity(${index}, -1)"
+              >
+                −
+              </button>
+
+
+              <span style="margin:0 8px;">
+                ${item.quantity}
+              </span>
+
+
+              <button
+                onclick="changeQuantity(${index}, 1)"
+              >
+                +
+              </button>
+
+            </div>
+
+          </div>
+
+        `;
+
+      });
+
+    }
+
+
+    function goToMenu() {
+
+      document
+        .getElementById("menu")
+        .scrollIntoView({
+          behavior: "smooth"
+        });
+
+    }
+
+
+    function goToCart() {
+
+      document
+        .getElementById("cartBox")
+        .scrollIntoView({
+          behavior: "smooth"
+        });
+
+    }
+
+
+    function showBooking() {
+
+      if (cart.length === 0) {
+
+        alert(
+          "Please add at least one item to your cart."
+        );
+
+        return;
+
+      }
+
+
+      let booking =
+        document.getElementById("booking");
+
+
+      booking.style.display =
+        "block";
+
+
+      booking.scrollIntoView({
+        behavior: "smooth"
+      });
+
+    }
+
+
+    function confirmBooking() {
+
+      let name =
+        document
+          .getElementById("name")
+          .value
+          .trim();
+
+
+      let phone =
+        document
+          .getElementById("phone")
+          .value
+          .trim();
+
+
+      let time =
+        document
+          .getElementById("time")
+          .value;
+
+
+      if (
+        name === "" ||
+        phone === "" ||
+        time === ""
+      ) {
+
+        alert(
+          "Please fill all details."
+        );
+
+        return;
+
+      }
+
+
+      let total = 0;
+
+
+      cart.forEach(item => {
+
+        total +=
+          item.price *
+          item.quantity;
+
+      });
+
+
+      let bookingID =
+        "FC" +
+        Math.floor(
+          100000 +
+          Math.random() * 900000
+        );
+
+
+      let confirmation =
+        document
+          .getElementById("confirmation");
+
+
+      confirmation.style.display =
+        "block";
+
+
+      confirmation.innerHTML = `
+
+        <h2>
+          🎉 Booking Confirmed!
+        </h2>
+
+        <p>
+          <strong>
+            Booking ID:
+          </strong>
+
+          ${bookingID}
+        </p>
+
+        <p>
+          <strong>
+            Name:
+          </strong>
+
+          ${name}
+        </p>
+
+        <p>
+          <strong>
+            Pickup Time:
+          </strong>
+
+          ${time}
+        </p>
+
+        <p>
+          <strong>
+            Total:
+          </strong>
+
+          ₹${total}
+        </p>
+
+        <br>
+
+        <p>
+          Show your Booking ID at the
+          FestCart counter to collect
+          your order.
+        </p>
+
+      `;
+
+
+      cart = [];
+
+
+      updateCart();
+
+    }
+
+
+    updateCart();
+
+  </script>
+
+</body>
+</html>
