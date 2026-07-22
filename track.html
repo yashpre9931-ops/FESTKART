@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>FestCart | Track Your Order</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  min-height:100vh;
+  background:#f5f5f7;
+  color:#111;
+}
+
+header{
+  background:#111;
+  color:white;
+  padding:18px 6%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.logo{
+  font-size:25px;
+  font-weight:800;
+}
+
+.logo span{
+  color:#ffb703;
+}
+
+.home-btn{
+  text-decoration:none;
+  color:#111;
+  background:#ffb703;
+  padding:10px 18px;
+  border-radius:25px;
+  font-weight:700;
+}
+
+.container{
+  width:90%;
+  max-width:650px;
+  margin:55px auto;
+}
+
+.track-box{
+  background:white;
+  padding:35px;
+  border-radius:25px;
+  box-shadow:0 10px 35px rgba(0,0,0,.08);
+}
+
+.track-box h1{
+  font-size:32px;
+  margin-bottom:10px;
+}
+
+.subtitle{
+  color:#777;
+  line-height:1.6;
+  margin-bottom:25px;
+}
+
+.search-area{
+  display:flex;
+  gap:10px;
+}
+
+.search-area input{
+  flex:1;
+  padding:15px;
+  border:1px solid #ddd;
+  border-radius:12px;
+  outline:none;
+  font-size:16px;
+  text-transform:uppercase;
+}
+
+.search-area input:focus{
+  border-color:#ffb703;
+}
+
+.search-btn{
+  border:0;
+  background:#ffb703;
+  padding:0 22px;
+  border-radius:12px;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.message{
+  display:none;
+  margin-top:20px;
+  padding:15px;
+  border-radius:12px;
+  background:#ffe5e5;
+  color:#b00020;
+}
+
+.result{
+  display:none;
+  margin-top:30px;
+}
+
+.order-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  padding-bottom:20px;
+  border-bottom:1px solid #eee;
+}
+
+.booking-id{
+  font-size:20px;
+  font-weight:800;
+}
+
+.status-badge{
+  padding:8px 15px;
+  border-radius:25px;
+  background:#fff3cd;
+  font-weight:800;
+}
+
+.customer{
+  margin-top:20px;
+  line-height:1.9;
+}
+
+.progress{
+  margin-top:30px;
+}
+
+.progress-title{
+  font-size:18px;
+  font-weight:800;
+  margin-bottom:25px;
+}
+
+.step{
+  display:flex;
+  align-items:flex-start;
+  gap:15px;
+  margin-bottom:25px;
+  position:relative;
+}
+
+.step:not(:last-child)::after{
+  content:"";
+  position:absolute;
+  left:16px;
+  top:35px;
+  width:3px;
+  height:35px;
+  background:#ddd;
+}
+
+.circle{
+  width:34px;
+  height:34px;
+  min-width:34px;
+  border-radius:50%;
+  background:#ddd;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:16px;
+}
+
+.step.active .circle{
+  background:#ffb703;
+}
+
+.step.done .circle{
+  background:#111;
+  color:white;
+}
+
+.step-content h3{
+  font-size:16px;
+  margin-bottom:4px;
+}
+
+.step-content p{
+  color:#777;
+  font-size:13px;
+}
+
+.items{
+  margin-top:25px;
+  padding:18px;
+  background:#f7f7f7;
+  border-radius:15px;
+}
+
+.item{
+  display:flex;
+  justify-content:space-between;
+  padding:8px 0;
+  border-bottom:1px solid #e5e5e5;
+}
+
+.item:last-child{
+  border-bottom:0;
+}
+
+.total{
+  display:flex;
+  justify-content:space-between;
+  margin-top:18px;
+  font-size:20px;
+  font-weight:800;
+}
+
+.auto-refresh{
+  text-align:center;
+  margin-top:25px;
+  color:#777;
+  font-size:13px;
+}
+
+@media(max-width:600px){
+
+  .container{
+    width:92%;
+    margin:35px auto;
+  }
+
+  .track-box{
+    padding:25px 20px;
+  }
+
+  .track-box h1{
+    font-size:27px;
+  }
+
+  .search-area{
+    flex-direction:column;
+  }
+
+  .search-btn{
+    padding:14px;
+  }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<header>
+
+<div class="logo">
+Fest<span>Cart</span>
+</div>
+
+<a
+href="index.html"
+class="home-btn"
+>
+🏠 Home
+</a>
+
+</header>
+
+
+
+<div class="container">
+
+<div class="track-box">
+
+<h1>
+🎟️ Track Your Order
+</h1>
+
+<p class="subtitle">
+Enter your Booking ID to check your order status and pickup information.
+</p>
+
+
+<div class="search-area">
+
+<input
+type="text"
+id="bookingInput"
+placeholder="Enter Booking ID"
+autocomplete="off"
+/>
+
+<button
+class="search-btn"
+onclick="trackOrder()"
+>
+Track
+</button>
+
+</div>
+
+
+<div
+class="message"
+id="message"
+></div>
+
+
+<div
+class="result"
+id="result"
+>
+
+<div class="order-header">
+
+<div>
+
+<div class="booking-id">
+🎟️ <span id="bookingId"></span>
+</div>
+
+</div>
+
+<div
+class="status-badge"
+id="statusBadge"
+>
+New
+</div>
+
+</div>
+
+
+<div class="customer">
+
+👤 <b>Name:</b>
+<span id="customerName"></span>
+
+<br>
+
+⏰ <b>Pickup Time:</b>
+<span id="pickupTime"></span>
+
+</div>
+
+
+
+<div class="progress">
+
+<div class="progress-title">
+Order Progress
+</div>
+
+
+<div
+class="step"
+id="stepNew"
+>
+
+<div class="circle">
+🆕
+</div>
+
+<div class="step-content">
+
+<h3>
+Order Received
+</h3>
+
+<p>
+Your booking has been received.
+</p>
+
+</div>
+
+</div>
+
+
+
+<div
+class="step"
+id="stepPreparing"
+>
+
+<div class="circle">
+🥤
+</div>
+
+<div class="step-content">
+
+<h3>
+Preparing
+</h3>
+
+<p>
+Your order is being prepared.
+</p>
+
+</div>
+
+</div>
+
+
+
+<div
+class="step"
+id="stepReady"
+>
+
+<div class="circle">
+✅
+</div>
+
+<div class="step-content">
+
+<h3>
+Ready for Pickup
+</h3>
+
+<p>
+Please collect your order from the counter.
+</p>
+
+</div>
+
+</div>
+
+
+
+<div
+class="step"
+id="stepCollected"
+>
+
+<div class="circle">
+🎉
+</div>
+
+<div class="step-content">
+
+<h3>
+Collected
+</h3>
+
+<p>
+Your order has been successfully collected.
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="items">
+
+<b>🥤 Your Order</b>
+
+<div id="itemsList"></div>
+
+
+<div class="total">
+
+<span>
+Total
+</span>
+
+<span>
+₹<span id="totalAmount">0</span>
+</span>
+
+</div>
+
+</div>
+
+
+<div class="auto-refresh">
+
+🔄 Order status automatically refreshes every 15 seconds.
+
+</div>
+
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<script>
+
+
+/* SUPABASE */
+
+const SUPABASE_URL =
+"https://pzdtpnvgdbomqmuyzhtv.supabase.co";
+
+
+const SUPABASE_PUBLISHABLE_KEY =
+"sb_publishable_DqbtaPNKSD_1ELESNwy54Q_ForkRGvn";
+
+
+const supabaseClient =
+window.supabase.createClient(
+
+SUPABASE_URL,
+
+SUPABASE_PUBLISHABLE_KEY
+
+);
+
+
+
+let currentBookingId = "";
+
+
+
+/* TRACK ORDER */
+
+async function trackOrder(){
+
+const input =
+document
+.getElementById("bookingInput")
+.value
+.trim()
+.toUpperCase();
+
+
+const message =
+document
+.getElementById("message");
+
+
+const result =
+document
+.getElementById("result");
+
+
+message.style.display="none";
+
+result.style.display="none";
+
+
+if(!input){
+
+message.innerText =
+"Please enter your Booking ID.";
+
+message.style.display="block";
+
+return;
+
+}
+
+
+currentBookingId = input;
+
+
+await fetchOrder(input);
+
+}
+
+
+
+/* FETCH ORDER */
+
+async function fetchOrder(
+bookingId
+){
+
+const message =
+document
+.getElementById("message");
+
+
+const result =
+document
+.getElementById("result");
+
+
+const {data,error} =
+
+await supabaseClient
+
+.from("bookings")
+
+.select("*")
+
+.eq(
+"booking_id",
+bookingId
+)
+
+.maybeSingle();
+
+
+if(error){
+
+console.error(error);
+
+message.innerText =
+"Unable to check order. Please try again.";
+
+message.style.display="block";
+
+result.style.display="none";
+
+return;
+
+}
+
+
+if(!data){
+
+message.innerText =
+"No order found with this Booking ID.";
+
+message.style.display="block";
+
+result.style.display="none";
+
+return;
+
+}
+
+
+message.style.display="none";
+
+result.style.display="block";
+
+
+displayOrder(data);
+
+}
+
+
+
+/* DISPLAY ORDER */
+
+function displayOrder(
+order
+){
+
+document
+.getElementById("bookingId")
+.innerText =
+order.booking_id;
+
+
+document
+.getElementById("customerName")
+.innerText =
+order.customer_name;
+
+
+document
+.getElementById("pickupTime")
+.innerText =
+order.pickup_time;
+
+
+document
+.getElementById("totalAmount")
+.innerText =
+order.total_amount;
+
+
+document
+.getElementById("statusBadge")
+.innerText =
+formatStatus(
+order.status
+);
+
+
+updateProgress(
+order.status
+);
+
+
+renderItems(
+order.items
+);
+
+}
+
+
+
+/* STATUS TEXT */
+
+function formatStatus(
+status
+){
+
+const statusNames = {
+
+new:"🆕 New",
+
+preparing:"🥤 Preparing",
+
+ready:"✅ Ready",
+
+collected:"🎉 Collected"
+
+};
+
+
+return statusNames[status]
+||
+status;
+
+}
+
+
+
+/* PROGRESS */
+
+function updateProgress(
+status
+){
+
+const steps = [
+
+"stepNew",
+
+"stepPreparing",
+
+"stepReady",
+
+"stepCollected"
+
+];
+
+
+const statusIndex = {
+
+new:0,
+
+preparing:1,
+
+ready:2,
+
+collected:3
+
+};
+
+
+const current =
+statusIndex[status];
+
+
+steps.forEach(
+
+(stepId,index)=>{
+
+const step =
+document
+.getElementById(stepId);
+
+
+step.classList.remove(
+"active"
+);
+
+step.classList.remove(
+"done"
+);
+
+
+if(
+current !== undefined &&
+index < current
+){
+
+step.classList.add(
+"done"
+);
+
+}
+
+
+if(
+current !== undefined &&
+index === current
+){
+
+step.classList.add(
+"active"
+);
+
+}
+
+}
+
+);
+
+}
+
+
+
+/* ITEMS */
+
+function renderItems(
+items
+){
+
+const box =
+document
+.getElementById("itemsList");
+
+
+box.innerHTML = "";
+
+
+if(!Array.isArray(items)){
+
+return;
+
+}
+
+
+items.forEach(
+item=>{
+
+box.innerHTML += `
+
+<div class="item">
+
+<span>
+
+${item.name}
+× ${item.quantity}
+
+</span>
+
+<span>
+
+₹${item.price * item.quantity}
+
+</span>
+
+</div>
+
+`;
+
+}
+
+);
+
+}
+
+
+
+/* AUTO REFRESH */
+
+setInterval(
+
+()=>{
+
+if(currentBookingId){
+
+fetchOrder(
+currentBookingId
+);
+
+}
+
+},
+
+15000
+
+);
+
+
+
+/* ENTER KEY */
+
+document
+.getElementById("bookingInput")
+.addEventListener(
+
+"keypress",
+
+function(event){
+
+if(
+event.key === "Enter"
+){
+
+trackOrder();
+
+}
+
+}
+
+);
+
+</script>
+
+
+</body>
+</html>
