@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>FestCart | Counter Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  background:#f5f5f7;
+  color:#111;
+}
+
+header{
+  background:#111;
+  color:white;
+  padding:20px 6%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.logo{
+  font-size:25px;
+  font-weight:800;
+}
+
+.logo span{
+  color:#ffb703;
+}
+
+.refresh{
+  border:0;
+  background:#ffb703;
+  padding:11px 18px;
+  border-radius:25px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.container{
+  width:90%;
+  max-width:1200px;
+  margin:35px auto;
+}
+
+h1{
+  margin-bottom:25px;
+}
+
+.stats{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:18px;
+  margin-bottom:30px;
+}
+
+.stat{
+  background:white;
+  padding:25px;
+  border-radius:18px;
+  box-shadow:0 5px 20px rgba(0,0,0,.06);
+}
+
+.stat h3{
+  color:#777;
+  font-size:14px;
+  margin-bottom:10px;
+}
+
+.stat strong{
+  font-size:30px;
+}
+
+.orders{
+  display:grid;
+  gap:18px;
+}
+
+.order{
+  background:white;
+  padding:22px;
+  border-radius:18px;
+  box-shadow:0 5px 20px rgba(0,0,0,.06);
+}
+
+.order-top{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  flex-wrap:wrap;
+  border-bottom:1px solid #eee;
+  padding-bottom:15px;
+}
+
+.booking-id{
+  font-weight:800;
+  font-size:18px;
+}
+
+.customer{
+  margin-top:15px;
+  line-height:1.8;
+}
+
+.items{
+  margin-top:15px;
+  background:#f7f7f7;
+  padding:15px;
+  border-radius:12px;
+}
+
+.item{
+  display:flex;
+  justify-content:space-between;
+  padding:6px 0;
+}
+
+.total{
+  margin-top:15px;
+  font-size:20px;
+  font-weight:800;
+}
+
+.status{
+  padding:8px 14px;
+  border-radius:20px;
+  font-weight:bold;
+  background:#fff3cd;
+}
+
+select{
+  margin-top:15px;
+  width:100%;
+  padding:12px;
+  border:1px solid #ddd;
+  border-radius:10px;
+  background:white;
+}
+
+.empty{
+  text-align:center;
+  padding:50px;
+  background:white;
+  border-radius:18px;
+  color:#777;
+}
+
+.loading{
+  text-align:center;
+  padding:30px;
+}
+
+@media(max-width:600px){
+  .container{
+    width:92%;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+
+  <div class="logo">
+    Fest<span>Cart</span>
+  </div>
+
+  <button class="refresh" onclick="loadOrders()">
+    🔄 Refresh
+  </button>
+
+</header>
+
+
+<div class="container">
+
+<h1>📊 Counter Dashboard</h1>
+
+
+<div class="stats">
+
+  <div class="stat">
+    <h3>Total Orders</h3>
+    <strong id="totalOrders">0</strong>
+  </div>
+
+  <div class="stat">
+    <h3>New Orders</h3>
+    <strong id="newOrders">0</strong>
+  </div>
+
+  <div class="stat">
+    <h3>Ready Orders</h3>
+    <strong id="readyOrders">0</strong>
+  </div>
+
+  <div class="stat">
+    <h3>Total Sales</h3>
+    <strong>₹<span id="totalSales">0</span></strong>
+  </div>
+
+</div>
+
+
+<div id="orders" class="orders">
+
+  <div class="loading">
+    Loading orders...
+  </div>
+
+</div>
+
+</div>
+
+
+<script>
+
+const SUPABASE_URL =
+"https://pzdtpnvgdbomqmuyzhtv.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+"sb_publishable_DqbtaPNKSD_1ELESNwy54Q_ForkRGvn";
+
+const supabaseClient =
+window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+
+async function loadOrders(){
+
+  const ordersBox =
+  document.getElementById("orders");
+
+  ordersBox.innerHTML =
+  '<div class="loading">Loading orders...</div>';
+
+
+  const {data,error} =
+  await supabaseClient
+  .from("bookings")
+  .select("*")
+  .order("created_at",{ascending:false});
+
+
+  if(error){
+
+    console.error(error);
+
+    ordersBox.innerHTML = `
+      <div class="empty">
+        ❌ Unable to load orders.
+        <br><br>
+        Please check Supabase table settings.
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  updateStats(data);
+
+  renderOrders(data);
+
+}
+
+
+function updateStats(data){
+
+  document.getElementById("totalOrders")
+  .innerText=data.length;
+
+
+  document.getElementById("newOrders")
+  .innerText=
+  data.filter(
+    x=>x.status==="new"
+  ).length;
+
+
+  document.getElementById("readyOrders")
+  .innerText=
+  data.filter(
+    x=>x.status==="ready"
+  ).length;
+
+
+  const sales =
+  data.reduce(
+    (sum,x)=>
+    sum+
+    Number(x.total_amount||0),
+    0
+  );
+
+
+  document.getElementById("totalSales")
+  .innerText=sales;
+
+}
+
+
+function renderOrders(data){
+
+  const box =
+  document.getElementById("orders");
+
+
+  if(!data.length){
+
+    box.innerHTML=`
+      <div class="empty">
+        🎉 No bookings yet.
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  box.innerHTML="";
+
+
+  data.forEach(order=>{
+
+    let items="";
+
+
+    if(Array.isArray(order.items)){
+
+      order.items.forEach(item=>{
+
+        items += `
+
+          <div class="item">
+
+            <span>
+              ${item.name}
+              × ${item.quantity}
+            </span>
+
+            <span>
+              ₹${item.price * item.quantity}
+            </span>
+
+          </div>
+
+        `;
+
+      });
+
+    }
+
+
+    box.innerHTML += `
+
+      <div class="order">
+
+        <div class="order-top">
+
+          <div>
+
+            <div class="booking-id">
+              🎟️ ${order.booking_id}
+            </div>
+
+            <small>
+              ${new Date(
+                order.created_at
+              ).toLocaleString()}
+            </small>
+
+          </div>
+
+
+          <div class="status">
+            ${order.status}
+          </div>
+
+        </div>
+
+
+        <div class="customer">
+
+          👤 <b>Name:</b>
+          ${order.customer_name}
+
+          <br>
+
+          📱 <b>Phone:</b>
+          ${order.phone}
+
+          <br>
+
+          ⏰ <b>Pickup:</b>
+          ${order.pickup_time}
+
+        </div>
+
+
+        <div class="items">
+
+          <b>🥤 Order Items</b>
+
+          ${items}
+
+        </div>
+
+
+        <div class="total">
+
+          Total:
+          ₹${order.total_amount}
+
+        </div>
+
+
+        <select
+          onchange="updateStatus(
+            '${order.id}',
+            this.value
+          )"
+        >
+
+          <option value="new"
+          ${order.status==="new"?"selected":""}>
+            🆕 New
+          </option>
+
+          <option value="preparing"
+          ${order.status==="preparing"?"selected":""}>
+            🥤 Preparing
+          </option>
+
+          <option value="ready"
+          ${order.status==="ready"?"selected":""}>
+            ✅ Ready
+          </option>
+
+          <option value="collected"
+          ${order.status==="collected"?"selected":""}>
+            🎉 Collected
+          </option>
+
+        </select>
+
+      </div>
+
+    `;
+
+  });
+
+}
+
+
+async function updateStatus(id,status){
+
+  const {error} =
+  await supabaseClient
+  .from("bookings")
+  .update({
+    status:status
+  })
+  .eq("id",id);
+
+
+  if(error){
+
+    alert(
+      "Status update failed."
+    );
+
+    console.error(error);
+
+    return;
+
+  }
+
+
+  loadOrders();
+
+}
+
+
+loadOrders();
+
+</script>
+
+</body>
+</html>
