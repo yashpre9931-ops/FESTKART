@@ -4,11 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>FestCart | Counter Dashboard</title>
+<title>FestCart | Admin Login</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+
 *{
   box-sizing:border-box;
   margin:0;
@@ -24,7 +25,7 @@ body{
 header{
   background:#111;
   color:white;
-  padding:20px 6%;
+  padding:18px 6%;
   display:flex;
   justify-content:space-between;
   align-items:center;
@@ -39,13 +40,68 @@ header{
   color:#ffb703;
 }
 
-.refresh{
+.logout{
+  display:none;
   border:0;
   background:#ffb703;
-  padding:11px 18px;
+  padding:10px 18px;
   border-radius:25px;
   font-weight:bold;
   cursor:pointer;
+}
+
+.login-box{
+  width:90%;
+  max-width:420px;
+  margin:80px auto;
+  background:white;
+  padding:35px;
+  border-radius:22px;
+  box-shadow:0 10px 35px rgba(0,0,0,.08);
+}
+
+.login-box h1{
+  margin-bottom:10px;
+}
+
+.login-box p{
+  color:#777;
+  margin-bottom:25px;
+}
+
+.login-box input{
+  width:100%;
+  padding:14px;
+  margin:8px 0 15px;
+  border:1px solid #ddd;
+  border-radius:10px;
+  outline:none;
+}
+
+.login-btn{
+  width:100%;
+  padding:15px;
+  border:0;
+  border-radius:30px;
+  background:#ffb703;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.message{
+  margin-top:15px;
+  padding:12px;
+  border-radius:10px;
+  display:none;
+}
+
+.error{
+  background:#ffe5e5;
+  color:#b00020;
+}
+
+.dashboard{
+  display:none;
 }
 
 .container{
@@ -54,15 +110,11 @@ header{
   margin:35px auto;
 }
 
-h1{
-  margin-bottom:25px;
-}
-
 .stats{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
   gap:18px;
-  margin-bottom:30px;
+  margin:25px 0 30px;
 }
 
 .stat{
@@ -82,14 +134,10 @@ h1{
   font-size:30px;
 }
 
-.orders{
-  display:grid;
-  gap:18px;
-}
-
 .order{
   background:white;
   padding:22px;
+  margin-bottom:18px;
   border-radius:18px;
   box-shadow:0 5px 20px rgba(0,0,0,.06);
 }
@@ -97,15 +145,15 @@ h1{
 .order-top{
   display:flex;
   justify-content:space-between;
-  gap:15px;
   flex-wrap:wrap;
+  gap:15px;
   border-bottom:1px solid #eee;
   padding-bottom:15px;
 }
 
 .booking-id{
-  font-weight:800;
   font-size:18px;
+  font-weight:800;
 }
 
 .customer{
@@ -115,8 +163,8 @@ h1{
 
 .items{
   margin-top:15px;
-  background:#f7f7f7;
   padding:15px;
+  background:#f7f7f7;
   border-radius:12px;
 }
 
@@ -135,17 +183,25 @@ h1{
 .status{
   padding:8px 14px;
   border-radius:20px;
-  font-weight:bold;
   background:#fff3cd;
+  font-weight:bold;
 }
 
-select{
-  margin-top:15px;
+.order select{
   width:100%;
   padding:12px;
+  margin-top:15px;
   border:1px solid #ddd;
   border-radius:10px;
-  background:white;
+}
+
+.refresh{
+  border:0;
+  background:#ffb703;
+  padding:11px 18px;
+  border-radius:25px;
+  font-weight:bold;
+  cursor:pointer;
 }
 
 .empty{
@@ -156,351 +212,644 @@ select{
   color:#777;
 }
 
-.loading{
-  text-align:center;
-  padding:30px;
-}
-
-@media(max-width:600px){
-  .container{
-    width:92%;
-  }
-}
 </style>
 </head>
 
+
 <body>
+
 
 <header>
 
-  <div class="logo">
-    Fest<span>Cart</span>
-  </div>
+<div class="logo">
+Fest<span>Cart</span>
+</div>
 
-  <button class="refresh" onclick="loadOrders()">
-    🔄 Refresh
-  </button>
+<button
+class="logout"
+id="logoutBtn"
+onclick="logout()"
+>
+Logout
+</button>
 
 </header>
 
 
+<!-- LOGIN -->
+
+<div
+class="login-box"
+id="loginBox"
+>
+
+<h1>🔐 Admin Login</h1>
+
+<p>
+Login to manage FestCart orders.
+</p>
+
+
+<input
+type="email"
+id="email"
+placeholder="Admin Email"
+/>
+
+
+<input
+type="password"
+id="password"
+placeholder="Password"
+/>
+
+
+<button
+class="login-btn"
+onclick="login()"
+>
+Login
+</button>
+
+
+<div
+class="message error"
+id="loginError"
+></div>
+
+</div>
+
+
+
+<!-- DASHBOARD -->
+
+<div
+class="dashboard"
+id="dashboard"
+>
+
 <div class="container">
 
-<h1>📊 Counter Dashboard</h1>
+<div style="
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:15px;
+flex-wrap:wrap;
+">
+
+<h1>
+📊 Counter Dashboard
+</h1>
+
+<button
+class="refresh"
+onclick="loadOrders()"
+>
+🔄 Refresh
+</button>
+
+</div>
 
 
 <div class="stats">
 
-  <div class="stat">
-    <h3>Total Orders</h3>
-    <strong id="totalOrders">0</strong>
-  </div>
+<div class="stat">
 
-  <div class="stat">
-    <h3>New Orders</h3>
-    <strong id="newOrders">0</strong>
-  </div>
+<h3>
+Total Orders
+</h3>
 
-  <div class="stat">
-    <h3>Ready Orders</h3>
-    <strong id="readyOrders">0</strong>
-  </div>
-
-  <div class="stat">
-    <h3>Total Sales</h3>
-    <strong>₹<span id="totalSales">0</span></strong>
-  </div>
+<strong id="totalOrders">
+0
+</strong>
 
 </div>
 
 
-<div id="orders" class="orders">
+<div class="stat">
 
-  <div class="loading">
-    Loading orders...
-  </div>
+<h3>
+New Orders
+</h3>
+
+<strong id="newOrders">
+0
+</strong>
+
+</div>
+
+
+<div class="stat">
+
+<h3>
+Ready Orders
+</h3>
+
+<strong id="readyOrders">
+0
+</strong>
+
+</div>
+
+
+<div class="stat">
+
+<h3>
+Total Sales
+</h3>
+
+<strong>
+₹<span id="totalSales">0</span>
+</strong>
 
 </div>
 
 </div>
+
+
+<div id="orders">
+
+<div class="empty">
+Loading orders...
+</div>
+
+</div>
+
+</div>
+
+</div>
+
 
 
 <script>
 
+
 const SUPABASE_URL =
 "https://pzdtpnvgdbomqmuyzhtv.supabase.co";
+
 
 const SUPABASE_PUBLISHABLE_KEY =
 "sb_publishable_DqbtaPNKSD_1ELESNwy54Q_ForkRGvn";
 
+
 const supabaseClient =
 window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_PUBLISHABLE_KEY
+SUPABASE_URL,
+SUPABASE_PUBLISHABLE_KEY
 );
+
+
+
+async function login(){
+
+const email =
+document
+.getElementById("email")
+.value
+.trim();
+
+
+const password =
+document
+.getElementById("password")
+.value;
+
+
+const errorBox =
+document
+.getElementById("loginError");
+
+
+errorBox.style.display="none";
+
+
+if(!email || !password){
+
+errorBox.innerText=
+"Please enter email and password.";
+
+errorBox.style.display="block";
+
+return;
+
+}
+
+
+const {data,error} =
+await supabaseClient.auth.signInWithPassword({
+
+email:email,
+
+password:password
+
+});
+
+
+if(error){
+
+errorBox.innerText=
+"Invalid email or password.";
+
+errorBox.style.display="block";
+
+return;
+
+}
+
+
+showDashboard();
+
+}
+
+
+
+function showDashboard(){
+
+document
+.getElementById("loginBox")
+.style.display="none";
+
+
+document
+.getElementById("dashboard")
+.style.display="block";
+
+
+document
+.getElementById("logoutBtn")
+.style.display="block";
+
+
+loadOrders();
+
+}
+
+
+
+async function logout(){
+
+await supabaseClient
+.auth
+.signOut();
+
+
+document
+.getElementById("dashboard")
+.style.display="none";
+
+
+document
+.getElementById("loginBox")
+.style.display="block";
+
+
+document
+.getElementById("logoutBtn")
+.style.display="none";
+
+}
+
+
+
+async function checkSession(){
+
+const {data} =
+await supabaseClient
+.auth
+.getSession();
+
+
+if(data.session){
+
+showDashboard();
+
+}
+
+}
+
 
 
 async function loadOrders(){
 
-  const ordersBox =
-  document.getElementById("orders");
-
-  ordersBox.innerHTML =
-  '<div class="loading">Loading orders...</div>';
+const ordersBox =
+document
+.getElementById("orders");
 
 
-  const {data,error} =
-  await supabaseClient
-  .from("bookings")
-  .select("*")
-  .order("created_at",{ascending:false});
+ordersBox.innerHTML=
+'<div class="empty">Loading orders...</div>';
 
 
-  if(error){
-
-    console.error(error);
-
-    ordersBox.innerHTML = `
-      <div class="empty">
-        ❌ Unable to load orders.
-        <br><br>
-        Please check Supabase table settings.
-      </div>
-    `;
-
-    return;
-
-  }
+const {data,error} =
+await supabaseClient
+.from("bookings")
+.select("*")
+.order(
+"created_at",
+{ascending:false}
+);
 
 
-  updateStats(data);
+if(error){
 
-  renderOrders(data);
+console.error(error);
+
+ordersBox.innerHTML=
+`
+<div class="empty">
+
+❌ Unable to load orders.
+
+<br><br>
+
+${error.message}
+
+</div>
+`;
+
+return;
 
 }
+
+
+updateStats(data);
+
+renderOrders(data);
+
+}
+
 
 
 function updateStats(data){
 
-  document.getElementById("totalOrders")
-  .innerText=data.length;
+document
+.getElementById("totalOrders")
+.innerText=
+data.length;
 
 
-  document.getElementById("newOrders")
-  .innerText=
-  data.filter(
-    x=>x.status==="new"
-  ).length;
+document
+.getElementById("newOrders")
+.innerText=
+data.filter(
+x=>x.status==="new"
+).length;
 
 
-  document.getElementById("readyOrders")
-  .innerText=
-  data.filter(
-    x=>x.status==="ready"
-  ).length;
+document
+.getElementById("readyOrders")
+.innerText=
+data.filter(
+x=>x.status==="ready"
+).length;
 
 
-  const sales =
-  data.reduce(
-    (sum,x)=>
-    sum+
-    Number(x.total_amount||0),
-    0
-  );
+const sales =
+data.reduce(
+(sum,x)=>
+sum+
+Number(
+x.total_amount||0
+),
+0
+);
 
 
-  document.getElementById("totalSales")
-  .innerText=sales;
+document
+.getElementById("totalSales")
+.innerText=
+sales;
 
 }
+
 
 
 function renderOrders(data){
 
-  const box =
-  document.getElementById("orders");
+const box =
+document
+.getElementById("orders");
 
 
-  if(!data.length){
+if(!data.length){
 
-    box.innerHTML=`
-      <div class="empty">
-        🎉 No bookings yet.
-      </div>
-    `;
+box.innerHTML=
+`
+<div class="empty">
 
-    return;
+🎉 No bookings yet.
 
-  }
+</div>
+`;
 
-
-  box.innerHTML="";
-
-
-  data.forEach(order=>{
-
-    let items="";
-
-
-    if(Array.isArray(order.items)){
-
-      order.items.forEach(item=>{
-
-        items += `
-
-          <div class="item">
-
-            <span>
-              ${item.name}
-              × ${item.quantity}
-            </span>
-
-            <span>
-              ₹${item.price * item.quantity}
-            </span>
-
-          </div>
-
-        `;
-
-      });
-
-    }
-
-
-    box.innerHTML += `
-
-      <div class="order">
-
-        <div class="order-top">
-
-          <div>
-
-            <div class="booking-id">
-              🎟️ ${order.booking_id}
-            </div>
-
-            <small>
-              ${new Date(
-                order.created_at
-              ).toLocaleString()}
-            </small>
-
-          </div>
-
-
-          <div class="status">
-            ${order.status}
-          </div>
-
-        </div>
-
-
-        <div class="customer">
-
-          👤 <b>Name:</b>
-          ${order.customer_name}
-
-          <br>
-
-          📱 <b>Phone:</b>
-          ${order.phone}
-
-          <br>
-
-          ⏰ <b>Pickup:</b>
-          ${order.pickup_time}
-
-        </div>
-
-
-        <div class="items">
-
-          <b>🥤 Order Items</b>
-
-          ${items}
-
-        </div>
-
-
-        <div class="total">
-
-          Total:
-          ₹${order.total_amount}
-
-        </div>
-
-
-        <select
-          onchange="updateStatus(
-            '${order.id}',
-            this.value
-          )"
-        >
-
-          <option value="new"
-          ${order.status==="new"?"selected":""}>
-            🆕 New
-          </option>
-
-          <option value="preparing"
-          ${order.status==="preparing"?"selected":""}>
-            🥤 Preparing
-          </option>
-
-          <option value="ready"
-          ${order.status==="ready"?"selected":""}>
-            ✅ Ready
-          </option>
-
-          <option value="collected"
-          ${order.status==="collected"?"selected":""}>
-            🎉 Collected
-          </option>
-
-        </select>
-
-      </div>
-
-    `;
-
-  });
+return;
 
 }
 
 
-async function updateStatus(id,status){
-
-  const {error} =
-  await supabaseClient
-  .from("bookings")
-  .update({
-    status:status
-  })
-  .eq("id",id);
+box.innerHTML="";
 
 
-  if(error){
-
-    alert(
-      "Status update failed."
-    );
-
-    console.error(error);
-
-    return;
-
-  }
+data.forEach(order=>{
 
 
-  loadOrders();
+let items="";
+
+
+if(Array.isArray(order.items)){
+
+order.items.forEach(item=>{
+
+items += `
+
+<div class="item">
+
+<span>
+${item.name}
+× ${item.quantity}
+</span>
+
+<span>
+₹${item.price * item.quantity}
+</span>
+
+</div>
+
+`;
+
+});
+
+}
+
+
+box.innerHTML += `
+
+<div class="order">
+
+
+<div class="order-top">
+
+<div>
+
+<div class="booking-id">
+
+🎟️ ${order.booking_id}
+
+</div>
+
+<small>
+
+${new Date(
+order.created_at
+).toLocaleString()}
+
+</small>
+
+</div>
+
+
+<div class="status">
+
+${order.status}
+
+</div>
+
+</div>
+
+
+
+<div class="customer">
+
+👤 <b>Name:</b>
+${order.customer_name}
+
+<br>
+
+📱 <b>Phone:</b>
+${order.phone}
+
+<br>
+
+⏰ <b>Pickup:</b>
+${order.pickup_time}
+
+</div>
+
+
+
+<div class="items">
+
+<b>🥤 Order Items</b>
+
+${items}
+
+</div>
+
+
+
+<div class="total">
+
+Total:
+₹${order.total_amount}
+
+</div>
+
+
+
+<select
+onchange="
+updateStatus(
+'${order.id}',
+this.value
+)
+"
+>
+
+<option
+value="new"
+${order.status==="new"?"selected":""}
+>
+🆕 New
+</option>
+
+
+<option
+value="preparing"
+${order.status==="preparing"?"selected":""}
+>
+🥤 Preparing
+</option>
+
+
+<option
+value="ready"
+${order.status==="ready"?"selected":""}
+>
+✅ Ready
+</option>
+
+
+<option
+value="collected"
+${order.status==="collected"?"selected":""}
+>
+🎉 Collected
+</option>
+
+</select>
+
+
+</div>
+
+`;
+
+});
+
+}
+
+
+
+async function updateStatus(
+id,
+status
+){
+
+const {error} =
+await supabaseClient
+.from("bookings")
+.update({
+status:status
+})
+.eq(
+"id",
+id
+);
+
+
+if(error){
+
+alert(
+"Status update failed."
+);
+
+console.error(error);
+
+return;
 
 }
 
 
 loadOrders();
 
+}
+
+
+
+checkSession();
+
 </script>
+
 
 </body>
 </html>
