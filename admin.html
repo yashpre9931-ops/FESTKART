@@ -280,6 +280,26 @@ header{
   background:white;
 }
 
+/* WHATSAPP BUTTON */
+
+.whatsapp-btn{
+  width:100%;
+  margin-top:12px;
+  padding:13px;
+  border:0;
+  border-radius:12px;
+  background:#25D366;
+  color:white;
+  font-weight:800;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.whatsapp-btn:hover{
+  opacity:.9;
+  transform:translateY(-1px);
+}
+
 /* EMPTY */
 
 .empty{
@@ -1159,11 +1179,99 @@ ${order.status === "collected" ? "selected" : ""}
 </select>
 
 
+<button
+
+class="whatsapp-btn"
+
+onclick="
+
+openWhatsApp(
+
+'${order.phone}',
+
+'${order.booking_id}',
+
+'${order.customer_name}',
+
+'${order.total_amount}',
+
+'${order.status}'
+
+)
+
+"
+
+>
+
+📱 WhatsApp Customer
+
+</button>
+
+
 </div>
 
 `;
 
 });
+
+}
+
+
+
+/* WHATSAPP */
+
+function openWhatsApp(
+phone,
+bookingId,
+customerName,
+total,
+status
+){
+
+let cleanPhone =
+String(phone)
+.replace(/\D/g,"");
+
+
+/* Add India country code */
+
+if(cleanPhone.length === 10){
+
+cleanPhone =
+"91" + cleanPhone;
+
+}
+
+
+const message =
+
+`Hello ${customerName} 👋
+
+Your FestCart order update 🎉
+
+🎟️ Booking ID: ${bookingId}
+
+💰 Total: ₹${total}
+
+📌 Status: ${status}
+
+Thank you for ordering from FestCart! 🥤✨
+
+Please visit the FestCart counter for pickup.`;
+
+
+const whatsappURL =
+
+"https://wa.me/" +
+cleanPhone +
+"?text=" +
+encodeURIComponent(message);
+
+
+window.open(
+whatsappURL,
+"_blank"
+);
 
 }
 
