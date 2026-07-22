@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>FestCart | Admin Login</title>
+<title>FestCart | Counter Dashboard</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -21,6 +21,8 @@ body{
   background:#f5f5f7;
   color:#111;
 }
+
+/* HEADER */
 
 header{
   background:#111;
@@ -40,15 +42,34 @@ header{
   color:#ffb703;
 }
 
-.logout{
-  display:none;
+.header-right{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+
+.logout,
+.refresh{
   border:0;
-  background:#ffb703;
   padding:10px 18px;
   border-radius:25px;
   font-weight:bold;
   cursor:pointer;
 }
+
+.logout{
+  display:none;
+  background:#ffb703;
+  color:#111;
+}
+
+.refresh{
+  background:#111;
+  color:white;
+  border:1px solid #333;
+}
+
+/* LOGIN */
 
 .login-box{
   width:90%;
@@ -78,6 +99,10 @@ header{
   outline:none;
 }
 
+.login-box input:focus{
+  border-color:#ffb703;
+}
+
 .login-btn{
   width:100%;
   padding:15px;
@@ -100,6 +125,8 @@ header{
   color:#b00020;
 }
 
+/* DASHBOARD */
+
 .dashboard{
   display:none;
 }
@@ -110,16 +137,31 @@ header{
   margin:35px auto;
 }
 
+.dashboard-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+  flex-wrap:wrap;
+}
+
+.dashboard-head h1{
+  font-size:30px;
+}
+
+/* STATS */
+
 .stats{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  grid-template-columns:
+  repeat(auto-fit,minmax(180px,1fr));
   gap:18px;
   margin:25px 0 30px;
 }
 
 .stat{
   background:white;
-  padding:25px;
+  padding:24px;
   border-radius:18px;
   box-shadow:0 5px 20px rgba(0,0,0,.06);
 }
@@ -133,6 +175,37 @@ header{
 .stat strong{
   font-size:30px;
 }
+
+/* SEARCH */
+
+.controls{
+  background:white;
+  padding:20px;
+  border-radius:18px;
+  box-shadow:0 5px 20px rgba(0,0,0,.05);
+  margin-bottom:25px;
+  display:grid;
+  grid-template-columns:
+  1fr 220px;
+  gap:15px;
+}
+
+.controls input,
+.controls select{
+  width:100%;
+  padding:14px;
+  border:1px solid #ddd;
+  border-radius:12px;
+  outline:none;
+  background:white;
+}
+
+.controls input:focus,
+.controls select:focus{
+  border-color:#ffb703;
+}
+
+/* ORDERS */
 
 .order{
   background:white;
@@ -156,6 +229,12 @@ header{
   font-weight:800;
 }
 
+.order-date{
+  color:#777;
+  font-size:13px;
+  margin-top:5px;
+}
+
 .customer{
   margin-top:15px;
   line-height:1.8;
@@ -171,7 +250,12 @@ header{
 .item{
   display:flex;
   justify-content:space-between;
-  padding:6px 0;
+  padding:7px 0;
+  border-bottom:1px solid #e5e5e5;
+}
+
+.item:last-child{
+  border-bottom:0;
 }
 
 .total{
@@ -193,16 +277,10 @@ header{
   margin-top:15px;
   border:1px solid #ddd;
   border-radius:10px;
+  background:white;
 }
 
-.refresh{
-  border:0;
-  background:#ffb703;
-  padding:11px 18px;
-  border-radius:25px;
-  font-weight:bold;
-  cursor:pointer;
-}
+/* EMPTY */
 
 .empty{
   text-align:center;
@@ -212,6 +290,32 @@ header{
   color:#777;
 }
 
+/* MOBILE */
+
+@media(max-width:700px){
+
+  .container{
+    width:92%;
+  }
+
+  .controls{
+    grid-template-columns:1fr;
+  }
+
+  header{
+    padding:16px 4%;
+  }
+
+  .logo{
+    font-size:21px;
+  }
+
+  .logout{
+    padding:9px 14px;
+  }
+
+}
+
 </style>
 </head>
 
@@ -219,11 +323,26 @@ header{
 <body>
 
 
+<!-- HEADER -->
+
 <header>
 
 <div class="logo">
 Fest<span>Cart</span>
 </div>
+
+
+<div class="header-right">
+
+<button
+class="refresh"
+id="refreshBtn"
+onclick="loadOrders()"
+style="display:none;"
+>
+🔄 Refresh
+</button>
+
 
 <button
 class="logout"
@@ -233,7 +352,10 @@ onclick="logout()"
 Logout
 </button>
 
+</div>
+
 </header>
+
 
 
 <!-- LOGIN -->
@@ -290,29 +412,21 @@ id="dashboard"
 
 <div class="container">
 
-<div style="
-display:flex;
-justify-content:space-between;
-align-items:center;
-gap:15px;
-flex-wrap:wrap;
-">
+
+<div class="dashboard-head">
 
 <h1>
 📊 Counter Dashboard
 </h1>
 
-<button
-class="refresh"
-onclick="loadOrders()"
->
-🔄 Refresh
-</button>
-
 </div>
 
 
+
+<!-- STATS -->
+
 <div class="stats">
+
 
 <div class="stat">
 
@@ -330,7 +444,7 @@ Total Orders
 <div class="stat">
 
 <h3>
-New Orders
+🆕 New Orders
 </h3>
 
 <strong id="newOrders">
@@ -343,7 +457,20 @@ New Orders
 <div class="stat">
 
 <h3>
-Ready Orders
+🥤 Preparing
+</h3>
+
+<strong id="preparingOrders">
+0
+</strong>
+
+</div>
+
+
+<div class="stat">
+
+<h3>
+✅ Ready
 </h3>
 
 <strong id="readyOrders">
@@ -356,7 +483,20 @@ Ready Orders
 <div class="stat">
 
 <h3>
-Total Sales
+🎉 Collected
+</h3>
+
+<strong id="collectedOrders">
+0
+</strong>
+
+</div>
+
+
+<div class="stat">
+
+<h3>
+💰 Total Sales
 </h3>
 
 <strong>
@@ -368,6 +508,52 @@ Total Sales
 </div>
 
 
+
+<!-- SEARCH & FILTER -->
+
+<div class="controls">
+
+<input
+type="text"
+id="searchInput"
+placeholder="🔎 Search Booking ID, Name or Mobile..."
+oninput="applyFilters()"
+/>
+
+
+<select
+id="statusFilter"
+onchange="applyFilters()"
+>
+
+<option value="all">
+All Orders
+</option>
+
+<option value="new">
+🆕 New
+</option>
+
+<option value="preparing">
+🥤 Preparing
+</option>
+
+<option value="ready">
+✅ Ready
+</option>
+
+<option value="collected">
+🎉 Collected
+</option>
+
+</select>
+
+</div>
+
+
+
+<!-- ORDERS -->
+
 <div id="orders">
 
 <div class="empty">
@@ -375,6 +561,7 @@ Loading orders...
 </div>
 
 </div>
+
 
 </div>
 
@@ -384,6 +571,8 @@ Loading orders...
 
 <script>
 
+
+/* SUPABASE */
 
 const SUPABASE_URL =
 "https://pzdtpnvgdbomqmuyzhtv.supabase.co";
@@ -400,6 +589,14 @@ SUPABASE_PUBLISHABLE_KEY
 );
 
 
+
+/* GLOBAL ORDERS */
+
+let allOrders = [];
+
+
+
+/* LOGIN */
 
 async function login(){
 
@@ -426,7 +623,7 @@ errorBox.style.display="none";
 
 if(!email || !password){
 
-errorBox.innerText=
+errorBox.innerText =
 "Please enter email and password.";
 
 errorBox.style.display="block";
@@ -437,7 +634,9 @@ return;
 
 
 const {data,error} =
-await supabaseClient.auth.signInWithPassword({
+await supabaseClient
+.auth
+.signInWithPassword({
 
 email:email,
 
@@ -448,7 +647,7 @@ password:password
 
 if(error){
 
-errorBox.innerText=
+errorBox.innerText =
 "Invalid email or password.";
 
 errorBox.style.display="block";
@@ -463,6 +662,8 @@ showDashboard();
 }
 
 
+
+/* SHOW DASHBOARD */
 
 function showDashboard(){
 
@@ -481,11 +682,18 @@ document
 .style.display="block";
 
 
+document
+.getElementById("refreshBtn")
+.style.display="block";
+
+
 loadOrders();
 
 }
 
 
+
+/* LOGOUT */
 
 async function logout(){
 
@@ -508,9 +716,17 @@ document
 .getElementById("logoutBtn")
 .style.display="none";
 
+
+document
+.getElementById("refreshBtn")
+.style.display="none";
+
+
 }
 
 
+
+/* SESSION CHECK */
 
 async function checkSession(){
 
@@ -530,6 +746,8 @@ showDashboard();
 
 
 
+/* LOAD ORDERS */
+
 async function loadOrders(){
 
 const ordersBox =
@@ -537,7 +755,7 @@ document
 .getElementById("orders");
 
 
-ordersBox.innerHTML=
+ordersBox.innerHTML =
 '<div class="empty">Loading orders...</div>';
 
 
@@ -555,8 +773,9 @@ if(error){
 
 console.error(error);
 
-ordersBox.innerHTML=
-`
+
+ordersBox.innerHTML = `
+
 <div class="empty">
 
 ❌ Unable to load orders.
@@ -566,6 +785,7 @@ ordersBox.innerHTML=
 ${error.message}
 
 </div>
+
 `;
 
 return;
@@ -573,57 +793,155 @@ return;
 }
 
 
-updateStats(data);
+allOrders = data || [];
 
-renderOrders(data);
+
+updateStats(allOrders);
+
+
+applyFilters();
 
 }
 
 
+
+/* STATS */
 
 function updateStats(data){
 
 document
 .getElementById("totalOrders")
-.innerText=
+.innerText =
 data.length;
 
 
 document
 .getElementById("newOrders")
-.innerText=
+.innerText =
 data.filter(
-x=>x.status==="new"
+x => x.status === "new"
+).length;
+
+
+document
+.getElementById("preparingOrders")
+.innerText =
+data.filter(
+x => x.status === "preparing"
 ).length;
 
 
 document
 .getElementById("readyOrders")
-.innerText=
+.innerText =
 data.filter(
-x=>x.status==="ready"
+x => x.status === "ready"
+).length;
+
+
+document
+.getElementById("collectedOrders")
+.innerText =
+data.filter(
+x => x.status === "collected"
 ).length;
 
 
 const sales =
 data.reduce(
-(sum,x)=>
-sum+
+
+(sum,x) =>
+
+sum +
 Number(
-x.total_amount||0
+x.total_amount || 0
 ),
+
 0
+
 );
 
 
 document
 .getElementById("totalSales")
-.innerText=
+.innerText =
 sales;
 
 }
 
 
+
+/* SEARCH + FILTER */
+
+function applyFilters(){
+
+const search =
+document
+.getElementById("searchInput")
+.value
+.toLowerCase()
+.trim();
+
+
+const status =
+document
+.getElementById("statusFilter")
+.value;
+
+
+const filtered =
+allOrders.filter(order => {
+
+
+const matchesSearch =
+
+String(
+order.booking_id || ""
+)
+.toLowerCase()
+.includes(search)
+
+||
+
+String(
+order.customer_name || ""
+)
+.toLowerCase()
+.includes(search)
+
+||
+
+String(
+order.phone || ""
+)
+.toLowerCase()
+.includes(search);
+
+
+const matchesStatus =
+
+status === "all"
+
+||
+
+order.status === status;
+
+
+return (
+matchesSearch &&
+matchesStatus
+);
+
+});
+
+
+renderOrders(filtered);
+
+}
+
+
+
+/* RENDER ORDERS */
 
 function renderOrders(data){
 
@@ -634,13 +952,14 @@ document
 
 if(!data.length){
 
-box.innerHTML=
-`
+box.innerHTML = `
+
 <div class="empty">
 
-🎉 No bookings yet.
+🔎 No matching orders found.
 
 </div>
+
 `;
 
 return;
@@ -648,30 +967,35 @@ return;
 }
 
 
-box.innerHTML="";
+box.innerHTML = "";
 
 
-data.forEach(order=>{
+data.forEach(order => {
 
 
-let items="";
+let items = "";
 
 
 if(Array.isArray(order.items)){
 
-order.items.forEach(item=>{
+order.items.forEach(item => {
 
 items += `
 
 <div class="item">
 
 <span>
+
 ${item.name}
 × ${item.quantity}
+
 </span>
 
+
 <span>
+
 ₹${item.price * item.quantity}
+
 </span>
 
 </div>
@@ -690,6 +1014,7 @@ box.innerHTML += `
 
 <div class="order-top">
 
+
 <div>
 
 <div class="booking-id">
@@ -698,13 +1023,14 @@ box.innerHTML += `
 
 </div>
 
-<small>
+
+<div class="order-date">
 
 ${new Date(
 order.created_at
 ).toLocaleString()}
 
-</small>
+</div>
 
 </div>
 
@@ -714,6 +1040,7 @@ order.created_at
 ${order.status}
 
 </div>
+
 
 </div>
 
@@ -758,44 +1085,76 @@ Total:
 
 
 <select
+
 onchange="
+
 updateStatus(
+
 '${order.id}',
+
 this.value
+
 )
+
 "
+
 >
 
+
 <option
+
 value="new"
-${order.status==="new"?"selected":""}
+
+${order.status === "new" ? "selected" : ""}
+
 >
+
 🆕 New
+
 </option>
 
 
+
 <option
+
 value="preparing"
-${order.status==="preparing"?"selected":""}
+
+${order.status === "preparing" ? "selected" : ""}
+
 >
+
 🥤 Preparing
+
 </option>
 
 
+
 <option
+
 value="ready"
-${order.status==="ready"?"selected":""}
+
+${order.status === "ready" ? "selected" : ""}
+
 >
+
 ✅ Ready
+
 </option>
+
 
 
 <option
+
 value="collected"
-${order.status==="collected"?"selected":""}
+
+${order.status === "collected" ? "selected" : ""}
+
 >
+
 🎉 Collected
+
 </option>
+
 
 </select>
 
@@ -810,6 +1169,8 @@ ${order.status==="collected"?"selected":""}
 
 
 
+/* UPDATE STATUS */
+
 async function updateStatus(
 id,
 status
@@ -819,7 +1180,9 @@ const {error} =
 await supabaseClient
 .from("bookings")
 .update({
+
 status:status
+
 })
 .eq(
 "id",
@@ -840,11 +1203,13 @@ return;
 }
 
 
-loadOrders();
+await loadOrders();
 
 }
 
 
+
+/* START */
 
 checkSession();
 
