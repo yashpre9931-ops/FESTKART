@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>FestCart | QR Center</title>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+<style>
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  background:#f5f5f7;
+  color:#111;
+}
+
+header{
+  background:#111;
+  color:white;
+  padding:18px 6%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.logo{
+  font-size:25px;
+  font-weight:800;
+}
+
+.logo span{
+  color:#ffb703;
+}
+
+.home-btn{
+  text-decoration:none;
+  color:#111;
+  background:#ffb703;
+  padding:10px 18px;
+  border-radius:25px;
+  font-weight:700;
+}
+
+.container{
+  width:90%;
+  max-width:900px;
+  margin:45px auto;
+}
+
+.heading{
+  text-align:center;
+  margin-bottom:35px;
+}
+
+.heading h1{
+  font-size:36px;
+  margin-bottom:10px;
+}
+
+.heading p{
+  color:#777;
+  line-height:1.6;
+}
+
+.qr-grid{
+  display:grid;
+  grid-template-columns:
+  repeat(auto-fit,minmax(280px,1fr));
+  gap:25px;
+}
+
+.qr-card{
+  background:white;
+  padding:30px;
+  border-radius:25px;
+  text-align:center;
+  box-shadow:0 10px 35px rgba(0,0,0,.07);
+}
+
+.qr-card h2{
+  margin-bottom:10px;
+}
+
+.qr-card p{
+  color:#777;
+  font-size:14px;
+  line-height:1.5;
+  margin-bottom:20px;
+}
+
+.qr-box{
+  width:220px;
+  height:220px;
+  margin:20px auto;
+  padding:10px;
+  background:white;
+  border-radius:15px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+}
+
+.qr-box img{
+  max-width:100%;
+  height:auto;
+}
+
+.url{
+  background:#f5f5f5;
+  padding:10px;
+  border-radius:10px;
+  font-size:12px;
+  color:#666;
+  word-break:break-all;
+  margin-bottom:15px;
+}
+
+.download-btn{
+  width:100%;
+  padding:13px;
+  border:0;
+  border-radius:30px;
+  background:#ffb703;
+  color:#111;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.download-btn:hover{
+  opacity:.9;
+}
+
+.note{
+  margin-top:30px;
+  padding:20px;
+  background:#fff3cd;
+  border-radius:15px;
+  line-height:1.6;
+  color:#664d03;
+}
+
+@media(max-width:600px){
+
+  .heading h1{
+    font-size:28px;
+  }
+
+  .container{
+    width:92%;
+  }
+
+}
+
+@media print{
+
+  header,
+  .home-btn,
+  .download-btn,
+  .note{
+    display:none;
+  }
+
+  body{
+    background:white;
+  }
+
+  .container{
+    margin:20px auto;
+  }
+
+  .qr-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .qr-card{
+    box-shadow:none;
+    border:1px solid #ddd;
+  }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+
+<header>
+
+<div class="logo">
+Fest<span>Cart</span>
+</div>
+
+<a
+href="index.html"
+class="home-btn"
+>
+🏠 Home
+</a>
+
+</header>
+
+
+
+<div class="container">
+
+
+<div class="heading">
+
+<h1>
+📲 FestCart QR Center
+</h1>
+
+<p>
+Scan the QR codes below to visit FestCart or track your order.
+</p>
+
+</div>
+
+
+
+<div class="qr-grid">
+
+
+<!-- MENU QR -->
+
+<div class="qr-card">
+
+<h2>
+🥤 FestCart Menu
+</h2>
+
+<p>
+Scan this QR code to open the FestCart website and place your pre-booking.
+</p>
+
+
+<div
+class="qr-box"
+id="menuQR"
+></div>
+
+
+<div class="url">
+https://festkart-rn509vokd-festcart.vercel.app/
+</div>
+
+
+<button
+class="download-btn"
+onclick="downloadQR('menuQR','FestCart-Menu-QR')"
+>
+📥 Download Menu QR
+</button>
+
+</div>
+
+
+
+<!-- TRACKING QR -->
+
+<div class="qr-card">
+
+<h2>
+🎟️ Track Your Order
+</h2>
+
+<p>
+Scan this QR code to open the order tracking page and check your booking status.
+</p>
+
+
+<div
+class="qr-box"
+id="trackQR"
+></div>
+
+
+<div class="url">
+https://festkart-rn509vokd-festcart.vercel.app/track.html
+</div>
+
+
+<button
+class="download-btn"
+onclick="downloadQR('trackQR','FestCart-Track-QR')"
+>
+📥 Download Tracking QR
+</button>
+
+</div>
+
+
+</div>
+
+
+
+<div class="note">
+
+💡 <b>Counter Tip:</b>
+
+Print the <b>Menu QR</b> and place it at your FestCart counter.
+
+You can also print the <b>Tracking QR</b> and display it separately so customers can easily check their order status.
+
+</div>
+
+
+</div>
+
+
+
+<script>
+
+
+/* WEBSITE URL */
+
+const MAIN_URL =
+"https://festkart-rn509vokd-festcart.vercel.app/";
+
+
+const TRACK_URL =
+"https://festkart-rn509vokd-festcart.vercel.app/track.html";
+
+
+
+/* CREATE MENU QR */
+
+new QRCode(
+
+document.getElementById("menuQR"),
+
+{
+
+text:MAIN_URL,
+
+width:200,
+
+height:200,
+
+correctLevel:
+QRCode.CorrectLevel.H
+
+}
+
+);
+
+
+
+/* CREATE TRACK QR */
+
+new QRCode(
+
+document.getElementById("trackQR"),
+
+{
+
+text:TRACK_URL,
+
+width:200,
+
+height:200,
+
+correctLevel:
+QRCode.CorrectLevel.H
+
+}
+
+);
+
+
+
+/* DOWNLOAD QR */
+
+function downloadQR(
+id,
+fileName
+){
+
+const qrBox =
+document
+.getElementById(id);
+
+
+const canvas =
+qrBox
+.querySelector("canvas");
+
+
+if(canvas){
+
+const link =
+document
+.createElement("a");
+
+
+link.download =
+fileName + ".png";
+
+
+link.href =
+canvas.toDataURL(
+"image/png"
+);
+
+
+link.click();
+
+return;
+
+}
+
+
+const img =
+qrBox
+.querySelector("img");
+
+
+if(img){
+
+const link =
+document
+.createElement("a");
+
+
+link.download =
+fileName + ".png";
+
+
+link.href =
+img.src;
+
+
+link.click();
+
+}
+
+}
+
+</script>
+
+
+</body>
+</html>
