@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>FestCart | Pre-Book & Pick Up</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #f7f7f8;
+      color: #171717;
+    }
+
+    header {
+      background: #111111;
+      color: white;
+      padding: 18px 7%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      font-size: 24px;
+      font-weight: bold;
+    }
+
+    .logo span {
+      color: #ffb703;
+    }
+
+    .cart {
+      background: #ffb703;
+      color: #111;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 30px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .hero {
+      padding: 70px 7%;
+      background: linear-gradient(135deg, #111111, #292929);
+      color: white;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: clamp(38px, 7vw, 72px);
+      margin-bottom: 15px;
+    }
+
+    .hero h1 span {
+      color: #ffb703;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: #dddddd;
+      margin-bottom: 25px;
+    }
+
+    .hero button {
+      background: #ffb703;
+      border: none;
+      padding: 14px 25px;
+      border-radius: 30px;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .container {
+      width: 86%;
+      max-width: 1100px;
+      margin: 45px auto;
+    }
+
+    .section-title {
+      margin-bottom: 25px;
+    }
+
+    .section-title h2 {
+      font-size: 32px;
+    }
+
+    .section-title p {
+      color: #666;
+      margin-top: 6px;
+    }
+
+    .menu {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.07);
+    }
+
+    .product-img {
+      height: 170px;
+      background: linear-gradient(135deg, #ffb703, #fb8500);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 70px;
+    }
+
+    .card-content {
+      padding: 20px;
+    }
+
+    .card-content h3 {
+      margin-bottom: 7px;
+    }
+
+    .card-content p {
+      color: #777;
+      font-size: 14px;
+      margin-bottom: 15px;
+    }
+
+    .price-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .price {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .add-btn {
+      background: #111;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 25px;
+      cursor: pointer;
+    }
+
+    .cart-box {
+      background: white;
+      padding: 25px;
+      border-radius: 20px;
+      margin-top: 40px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+    }
+
+    .cart-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #eee;
+    }
+
+    .total {
+      display: flex;
+      justify-content: space-between;
+      font-size: 21px;
+      font-weight: bold;
+      margin-top: 20px;
+    }
+
+    .checkout {
+      width: 100%;
+      margin-top: 20px;
+      background: #ffb703;
+      border: none;
+      padding: 15px;
+      border-radius: 30px;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .booking {
+      display: none;
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      margin-top: 25px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.06);
+    }
+
+    .booking input,
+    .booking select {
+      width: 100%;
+      padding: 13px;
+      margin: 8px 0 15px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+    }
+
+    .confirm {
+      width: 100%;
+      background: #111;
+      color: white;
+      border: none;
+      padding: 14px;
+      border-radius: 30px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px;
+      background: #111;
+      color: white;
+      margin-top: 50px;
+    }
+
+    @media (max-width: 600px) {
+      .hero {
+        padding: 55px 20px;
+      }
+
+      .container {
+        width: 92%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="logo">Fest<span>Cart</span></div>
+  <button class="cart" onclick="scrollToCart()">🛒 Cart (<span id="cartCount">0</span>)</button>
+</header>
+
+<section class="hero">
+  <h1>Pre-Book.<br><span>Skip The Queue.</span></h1>
+  <p>Order your favourite shakes in advance and collect them directly at the fest counter.</p>
+  <button onclick="document.getElementById('menu').scrollIntoView()">Explore Menu</button>
+</section>
+
+<div class="container">
+
+  <div class="section-title" id="menu">
+    <h2>🥤 Today's Menu</h2>
+    <p>Freshly prepared for College Fest 2026</p>
+  </div>
+
+  <div class="menu">
+
+    <div class="card">
+      <div class="product-img">🍫</div>
+      <div class="card-content">
+        <h3>Chocolate Blast</h3>
+        <p>Rich and creamy chocolate shake.</p>
+        <div class="price-row">
+          <div class="price">₹80</div>
+          <button class="add-btn" onclick="addToCart('Chocolate Blast', 80)">Add +</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="product-img">🍓</div>
+      <div class="card-content">
+        <h3>Strawberry Cream</h3>
+        <p>Sweet strawberry shake with creamy flavour.</p>
+        <div class="price-row">
+          <div class="price">₹90</div>
+          <button class="add-btn" onclick="addToCart('Strawberry Cream', 90)">Add +</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="product-img">🥭</div>
+      <div class="card-content">
+        <h3>Mango Magic</h3>
+        <p>Fresh mango shake with a tropical taste.</p>
+        <div class="price-row">
+          <div class="price">₹70</div>
+          <button class="add-btn" onclick="addToCart('Mango Magic', 70)">Add +</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="product-img">🍌</div>
+      <div class="card-content">
+        <h3>Banana Cream</h3>
+        <p>Classic banana shake, smooth and delicious.</p>
+        <div class="price-row">
+          <div class="price">₹60</div>
+          <button class="add-btn" onclick="addToCart('Banana Cream', 60)">Add +</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="cart-box" id="cartBox">
+    <h2>🛒 Your Pre-Booking</h2>
+
+    <div id="cartItems">
+      <p style="margin-top:15px;color:#777;">Your cart is empty.</p>
+    </div>
+
+    <div class="total">
+      <span>Total</span>
+      <span>₹<span id="total">0</span></span>
+    </div>
+
+    <button class="checkout" onclick="showBooking()">Continue to Pre-Book</button>
+  </div>
+
+  <div class="booking" id="booking">
+    <h2>🎟️ Confirm Your Pre-Booking</h2>
+
+    <label>Your Name</label>
+    <input type="text" id="name" placeholder="Enter your name">
+
+    <label>Mobile Number</label>
+    <input type="tel" id="phone" placeholder="Enter mobile number">
+
+    <label>Pickup Time</label>
+    <select id="time">
+      <option>11:00 AM</option>
+      <option>12:00 PM</option>
+      <option>1:00 PM</option>
+      <option>2:00 PM</option>
+      <option>3:00 PM</option>
+      <option>4:00 PM</option>
+      <option>5:00 PM</option>
+    </select>
+
+    <button class="confirm" onclick="confirmBooking()">Confirm Pre-Booking</button>
+
+    <div id="confirmation" style="margin-top:20px;"></div>
+  </div>
+
+</div>
+
+<footer>
+  <h3>FestCart</h3>
+  <p>Scan. Pre-Book. Pick Up.</p>
+</footer>
+
+<script>
+
+let cart = [];
+
+function addToCart(name, price) {
+  cart.push({name, price});
+  updateCart();
+}
+
+function updateCart() {
+
+  document.getElementById("cartCount").innerText = cart.length;
+
+  let items = document.getElementById("cartItems");
+
+  if(cart.length === 0) {
+    items.innerHTML = '<p style="margin-top:15px;color:#777;">Your cart is empty.</p>';
+  } else {
+
+    items.innerHTML = "";
+
+    cart.forEach((item, index) => {
+
+      items.innerHTML += `
+        <div class="cart-item">
+          <span>${item.name}</span>
+          <span>₹${item.price}</span>
+        </div>
+      `;
+
+    });
+  }
+
+  let total = cart.reduce((sum, item) => sum + item.price, 0);
+
+  document.getElementById("total").innerText = total;
+}
+
+function scrollToCart() {
+  document.getElementById("cartBox").scrollIntoView({
+    behavior: "smooth"
+  });
+}
+
+function showBooking() {
+
+  if(cart.length === 0) {
+    alert("Please add at least one item to your cart.");
+    return;
+  }
+
+  document.getElementById("booking").style.display = "block";
+
+  document.getElementById("booking").scrollIntoView({
+    behavior: "smooth"
+  });
+}
+
+function confirmBooking() {
+
+  let name = document.getElementById("name").value;
+  let phone = document.getElementById("phone").value;
+  let time = document.getElementById("time").value;
+
+  if(name === "" || phone === "") {
+    alert("Please enter your name and mobile number.");
+    return;
+  }
+
+  let bookingID = "FC" + Math.floor(1000 + Math.random() * 9000);
+
+  let total = cart.reduce((sum, item) => sum + item.price, 0);
+
+  document.getElementById("confirmation").innerHTML = `
+    <div style="background:#f5f5f5;padding:20px;border-radius:15px;">
+      <h2>🎉 Booking Confirmed!</h2>
+      <br>
+      <p><strong>Booking ID:</strong> ${bookingID}</p>
+      <p><strong>Name:</strong> ${name}</p>
+      <p><strong>Pickup Time:</strong> ${time}</p>
+      <p><strong>Total:</strong> ₹${total}</p>
+      <br>
+      <p>Show your Booking ID at the FestCart counter to collect your order.</p>
+    </div>
+  `;
+
+  cart = [];
+  updateCart();
+}
+
+</script>
+
+</body>
+</html>
