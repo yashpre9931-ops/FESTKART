@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -288,9 +289,11 @@ button{
 }
 
 </style>
+
 </head>
 
 <body>
+
 
 <header>
 
@@ -310,7 +313,8 @@ Logout
 </header>
 
 
-<!-- LOGIN BOX -->
+
+<!-- LOGIN -->
 
 <section
 class="login-box"
@@ -418,7 +422,7 @@ id="resetBox"
 <h1>🔒 Create New Password</h1>
 
 <p>
-Enter your new password below.
+Create a new password for your Counter Owner account.
 </p>
 
 <input
@@ -507,6 +511,7 @@ Loading...
 
 <br>
 
+
 <label>
 Store Name
 </label>
@@ -515,6 +520,7 @@ Store Name
 id="editStoreName"
 placeholder="Enter store name"
 />
+
 
 <label>
 Owner Name
@@ -525,6 +531,7 @@ id="editOwnerName"
 placeholder="Enter owner name"
 />
 
+
 <label>
 Logo URL
 </label>
@@ -533,6 +540,7 @@ Logo URL
 id="editLogoUrl"
 placeholder="Paste logo image URL"
 />
+
 
 <label>
 Banner URL
@@ -543,6 +551,7 @@ id="editBannerUrl"
 placeholder="Paste banner image URL"
 />
 
+
 <button
 class="main-btn"
 onclick="updateStore()"
@@ -550,12 +559,14 @@ onclick="updateStore()"
 💾 Save Store Details
 </button>
 
+
 <div
 class="message success"
 id="storeSuccess"
 >
 Store details updated successfully!
 </div>
+
 
 <div
 class="message error"
@@ -572,6 +583,7 @@ id="storeError"
 🥤 Add New Product
 </h2>
 
+
 <div class="box product-form">
 
 <label>
@@ -583,6 +595,7 @@ id="productName"
 placeholder="Example: Chocolate Shake"
 />
 
+
 <label>
 Description
 </label>
@@ -591,6 +604,7 @@ Description
 id="productDescription"
 placeholder="Enter product description"
 ></textarea>
+
 
 <label>
 Price
@@ -602,6 +616,7 @@ type="number"
 placeholder="Enter price"
 />
 
+
 <label>
 Product Image URL
 </label>
@@ -611,6 +626,7 @@ id="productImage"
 placeholder="Paste product image URL"
 />
 
+
 <button
 class="main-btn"
 onclick="addProduct()"
@@ -618,12 +634,14 @@ onclick="addProduct()"
 ➕ Add Product
 </button>
 
+
 <div
 class="message success"
 id="productSuccess"
 >
 Product added successfully!
 </div>
+
 
 <div
 class="message error"
@@ -640,6 +658,7 @@ id="productError"
 📋 My Products
 </h2>
 
+
 <div
 class="products"
 id="products"
@@ -650,6 +669,7 @@ Loading products...
 </div>
 
 </div>
+
 
 </div>
 
@@ -683,6 +703,109 @@ SUPABASE_PUBLISHABLE_KEY
 let currentUser = null;
 
 let currentStore = null;
+
+
+
+/* SHOW LOGIN */
+
+function showLogin(){
+
+document
+.getElementById("loginBox")
+.style.display =
+"block";
+
+document
+.getElementById("forgotBox")
+.style.display =
+"none";
+
+document
+.getElementById("resetBox")
+.style.display =
+"none";
+
+document
+.getElementById("dashboard")
+.style.display =
+"none";
+
+document
+.getElementById("logoutBtn")
+.style.display =
+"none";
+
+}
+
+
+
+/* SHOW FORGOT PASSWORD */
+
+function showForgotPassword(){
+
+document
+.getElementById("loginBox")
+.style.display =
+"none";
+
+document
+.getElementById("resetBox")
+.style.display =
+"none";
+
+document
+.getElementById("dashboard")
+.style.display =
+"none";
+
+document
+.getElementById("forgotBox")
+.style.display =
+"block";
+
+
+document
+.getElementById("resetEmail")
+.value =
+document
+.getElementById("email")
+.value
+.trim();
+
+}
+
+
+
+/* SHOW RESET PASSWORD */
+
+function showResetPassword(){
+
+document
+.getElementById("loginBox")
+.style.display =
+"none";
+
+document
+.getElementById("forgotBox")
+.style.display =
+"none";
+
+document
+.getElementById("dashboard")
+.style.display =
+"none";
+
+document
+.getElementById("logoutBtn")
+.style.display =
+"none";
+
+document
+.getElementById("resetBox")
+.style.display =
+"block";
+
+}
 
 
 
@@ -760,65 +883,6 @@ await loadStore();
 
 
 
-/* FORGOT PASSWORD SCREEN */
-
-function showForgotPassword(){
-
-document
-.getElementById("loginBox")
-.style.display =
-"none";
-
-
-document
-.getElementById("resetBox")
-.style.display =
-"none";
-
-
-document
-.getElementById("forgotBox")
-.style.display =
-"block";
-
-
-document
-.getElementById("resetEmail")
-.value =
-document
-.getElementById("email")
-.value
-.trim();
-
-}
-
-
-
-/* BACK TO LOGIN */
-
-function showLogin(){
-
-document
-.getElementById("forgotBox")
-.style.display =
-"none";
-
-
-document
-.getElementById("resetBox")
-.style.display =
-"none";
-
-
-document
-.getElementById("loginBox")
-.style.display =
-"block";
-
-}
-
-
-
 /* SEND PASSWORD RESET EMAIL */
 
 async function sendResetEmail(){
@@ -843,7 +907,6 @@ document
 successBox.style.display =
 "none";
 
-
 errorBox.style.display =
 "none";
 
@@ -863,9 +926,15 @@ return;
 
 /*
 IMPORTANT:
-Password reset ke baad user ko
-directly counter.html par redirect karna hai.
+
+This must match the Redirect URL
+added in Supabase Authentication
+URL Configuration.
 */
+
+const redirectUrl =
+"https://festkart-rn509vokd-festcart.vercel.app/counter.html";
+
 
 const {error} =
 await supabaseClient
@@ -877,7 +946,7 @@ email,
 {
 
 redirectTo:
-"https://festkart-rn509vokd-festcart.vercel.app/counter.html"
+redirectUrl
 
 }
 
@@ -888,9 +957,8 @@ if(error){
 
 console.error(error);
 
-
 errorBox.innerText =
-"Unable to send reset link. Please check your email address.";
+"Unable to send reset link. Please try again.";
 
 errorBox.style.display =
 "block";
@@ -910,7 +978,7 @@ successBox.style.display =
 
 
 
-/* PASSWORD UPDATE SCREEN */
+/* UPDATE PASSWORD */
 
 async function updatePassword(){
 
@@ -938,7 +1006,6 @@ document
 
 successBox.style.display =
 "none";
-
 
 errorBox.style.display =
 "none";
@@ -998,7 +1065,6 @@ if(error){
 
 console.error(error);
 
-
 errorBox.innerText =
 "Unable to update password. Please try again.";
 
@@ -1011,21 +1077,31 @@ return;
 
 
 successBox.innerText =
-"✅ Password updated successfully! You can now login with your new password.";
+"✅ Password updated successfully! Redirecting to login...";
 
 successBox.style.display =
 "block";
 
 
+/*
+Sign out after changing password.
+Then send user back to login page.
+*/
+
 setTimeout(
 
-function(){
+async function(){
 
-showLogin();
+await supabaseClient
+.auth
+.signOut();
+
+window.location.href =
+"https://festkart-rn509vokd-festcart.vercel.app/counter.html";
 
 },
 
-2500
+2000
 
 );
 
@@ -1033,39 +1109,31 @@ showLogin();
 
 
 
-/* CHECK PASSWORD RESET SESSION */
+/* PASSWORD RECOVERY SESSION */
 
 supabaseClient
 .auth
 .onAuthStateChange(
 
-(event,session)=>{
+async (event,session)=>{
 
+console.log(
+"Auth Event:",
+event
+);
+
+
+/*
+When user clicks password reset
+link from email, Supabase creates
+a recovery session.
+
+Show Reset Password page.
+*/
 
 if(event === "PASSWORD_RECOVERY"){
 
-document
-.getElementById("loginBox")
-.style.display =
-"none";
-
-
-document
-.getElementById("forgotBox")
-.style.display =
-"none";
-
-
-document
-.getElementById("dashboard")
-.style.display =
-"none";
-
-
-document
-.getElementById("resetBox")
-.style.display =
-"block";
+showResetPassword();
 
 }
 
@@ -1075,9 +1143,64 @@ document
 
 
 
+/*
+CHECK EXISTING SESSION ON PAGE LOAD
+
+This helps when the recovery session
+is already available after redirect.
+*/
+
+async function checkInitialSession(){
+
+const {data} =
+await supabaseClient
+.auth
+.getSession();
+
+
+const session =
+data.session;
+
+
+if(session){
+
+/*
+If recovery session is active,
+show reset password screen.
+
+Otherwise, if user is already logged in,
+load their own store.
+*/
+
+const hash =
+window.location.hash;
+
+
+if(
+hash.includes("type=recovery")
+){
+
+showResetPassword();
+
+return;
+
+}
+
+}
+
+}
+
+
 /* LOAD STORE */
 
 async function loadStore(){
+
+if(!currentUser){
+
+return;
+
+}
+
 
 const {data,error} =
 await supabaseClient
@@ -1110,6 +1233,8 @@ document
 .getElementById("loginError")
 .style.display =
 "block";
+
+showLogin();
 
 return;
 
@@ -1274,6 +1399,10 @@ bannerUrl
 .eq(
 "id",
 currentStore.id
+)
+.eq(
+"owner_id",
+currentUser.id
 );
 
 
@@ -1512,6 +1641,13 @@ await loadProducts();
 
 async function loadProducts(){
 
+if(!currentStore){
+
+return;
+
+}
+
+
 const {data,error} =
 await supabaseClient
 .from("products")
@@ -1642,6 +1778,19 @@ return;
 }
 
 
+const newDescription =
+prompt(
+"Enter new product description:"
+);
+
+
+if(newDescription === null){
+
+return;
+
+}
+
+
 const newPrice =
 prompt(
 "Enter new price:"
@@ -1649,6 +1798,19 @@ prompt(
 
 
 if(!newPrice){
+
+return;
+
+}
+
+
+const newImage =
+prompt(
+"Enter new product image URL:"
+);
+
+
+if(newImage === null){
 
 return;
 
@@ -1663,8 +1825,14 @@ await supabaseClient
 name:
 newName,
 
+description:
+newDescription,
+
 price:
-Number(newPrice)
+Number(newPrice),
+
+image_url:
+newImage
 
 })
 .eq(
@@ -1751,9 +1919,16 @@ await supabaseClient
 .signOut();
 
 
-location.reload();
+window.location.href =
+"https://festkart-rn509vokd-festcart.vercel.app/counter.html";
 
 }
+
+
+
+/* START */
+
+checkInitialSession();
 
 </script>
 
