@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>FestCart | Counter Owner Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  background:#f5f5f7;
+  color:#111;
+}
+
+header{
+  background:#111;
+  color:white;
+  padding:18px 6%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.logo{
+  font-size:25px;
+  font-weight:800;
+}
+
+.logo span{
+  color:#ffb703;
+}
+
+.logout{
+  border:0;
+  background:#ffb703;
+  color:#111;
+  padding:10px 18px;
+  border-radius:25px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.container{
+  width:90%;
+  max-width:1100px;
+  margin:35px auto;
+}
+
+.login-box,
+.box{
+  background:white;
+  padding:30px;
+  border-radius:20px;
+  box-shadow:0 8px 30px rgba(0,0,0,.07);
+}
+
+.login-box{
+  max-width:420px;
+  margin:70px auto;
+}
+
+.login-box h1{
+  margin-bottom:10px;
+}
+
+.login-box p{
+  color:#777;
+  margin-bottom:25px;
+}
+
+input,
+textarea{
+  width:100%;
+  padding:13px;
+  margin:7px 0 15px;
+  border:1px solid #ddd;
+  border-radius:10px;
+  outline:none;
+}
+
+textarea{
+  resize:vertical;
+  min-height:90px;
+}
+
+button{
+  cursor:pointer;
+}
+
+.login-btn,
+.main-btn{
+  width:100%;
+  padding:14px;
+  border:0;
+  border-radius:30px;
+  background:#ffb703;
+  color:#111;
+  font-weight:800;
+}
+
+.dashboard{
+  display:none;
+}
+
+.store-card{
+  display:grid;
+  grid-template-columns:180px 1fr;
+  gap:25px;
+  align-items:center;
+  margin-bottom:25px;
+}
+
+.store-logo{
+  width:180px;
+  height:180px;
+  border-radius:20px;
+  object-fit:cover;
+  background:#eee;
+}
+
+.store-info h1{
+  font-size:30px;
+  margin-bottom:8px;
+}
+
+.store-info p{
+  color:#777;
+  margin:6px 0;
+}
+
+.section-title{
+  margin:30px 0 18px;
+}
+
+.product-form{
+  margin-bottom:30px;
+}
+
+.products{
+  display:grid;
+  grid-template-columns:
+  repeat(auto-fit,minmax(230px,1fr));
+  gap:20px;
+}
+
+.product{
+  background:white;
+  border-radius:18px;
+  overflow:hidden;
+  box-shadow:0 6px 20px rgba(0,0,0,.06);
+}
+
+.product img{
+  width:100%;
+  height:170px;
+  object-fit:cover;
+  background:#eee;
+}
+
+.product-content{
+  padding:18px;
+}
+
+.product-content h3{
+  margin-bottom:8px;
+}
+
+.product-content p{
+  color:#777;
+  font-size:14px;
+  margin-bottom:10px;
+}
+
+.price{
+  font-size:20px;
+  font-weight:800;
+}
+
+.product-actions{
+  display:flex;
+  gap:10px;
+  margin-top:15px;
+}
+
+.edit-btn,
+.delete-btn{
+  flex:1;
+  padding:10px;
+  border:0;
+  border-radius:10px;
+  font-weight:bold;
+}
+
+.edit-btn{
+  background:#eee;
+}
+
+.delete-btn{
+  background:#ffe5e5;
+  color:#b00020;
+}
+
+.message{
+  display:none;
+  padding:14px;
+  margin-top:15px;
+  border-radius:10px;
+}
+
+.success{
+  background:#e5f8eb;
+  color:#08752b;
+}
+
+.error{
+  background:#ffe5e5;
+  color:#b00020;
+}
+
+@media(max-width:600px){
+
+  .store-card{
+    grid-template-columns:1fr;
+  }
+
+  .store-logo{
+    width:100%;
+    height:220px;
+  }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+
+<div class="logo">
+Fest<span>Cart</span>
+</div>
+
+<button
+class="logout"
+id="logoutBtn"
+onclick="logout()"
+style="display:none;"
+>
+Logout
+</button>
+
+</header>
+
+
+<!-- LOGIN -->
+
+<section
+class="login-box"
+id="loginBox"
+>
+
+<h1>🔐 Counter Owner Login</h1>
+
+<p>
+Login to manage your counter.
+</p>
+
+<input
+type="email"
+id="email"
+placeholder="Owner Email"
+/>
+
+<input
+type="password"
+id="password"
+placeholder="Password"
+/>
+
+<button
+class="login-btn"
+onclick="login()"
+>
+Login
+</button>
+
+<div
+class="message error"
+id="loginError"
+></div>
+
+</section>
+
+
+<!-- DASHBOARD -->
+
+<section
+class="dashboard"
+id="dashboard"
+>
+
+<div class="container">
+
+
+<!-- STORE -->
+
+<div class="box">
+
+<div class="store-card">
+
+<img
+id="storeLogo"
+class="store-logo"
+src="https://via.placeholder.com/300"
+>
+
+<div class="store-info">
+
+<h1 id="storeName">
+Loading Store...
+</h1>
+
+<p>
+👤 Owner:
+<span id="ownerName">
+Loading...
+</span>
+</p>
+
+<p>
+🆔 Store ID:
+<span id="storeId">
+Loading...
+</span>
+</p>
+
+</div>
+
+</div>
+
+
+<h2>
+🏪 Store Settings
+</h2>
+
+<br>
+
+<label>
+Store Name
+</label>
+
+<input
+id="editStoreName"
+placeholder="Enter store name"
+/>
+
+
+<label>
+Owner Name
+</label>
+
+<input
+id="editOwnerName"
+placeholder="Enter owner name"
+/>
+
+
+<label>
+Logo URL
+</label>
+
+<input
+id="editLogoUrl"
+placeholder="Paste logo image URL"
+/>
+
+
+<label>
+Banner URL
+</label>
+
+<input
+id="editBannerUrl"
+placeholder="Paste banner image URL"
+/>
+
+
+<button
+class="main-btn"
+onclick="updateStore()"
+>
+💾 Save Store Details
+</button>
+
+
+<div
+class="message success"
+id="storeSuccess"
+>
+Store details updated successfully!
+</div>
+
+
+<div
+class="message error"
+id="storeError"
+></div>
+
+</div>
+
+
+<!-- ADD PRODUCT -->
+
+<h2 class="section-title">
+🥤 Add New Product
+</h2>
+
+
+<div class="box product-form">
+
+<label>
+Product Name
+</label>
+
+<input
+id="productName"
+placeholder="Example: Chocolate Shake"
+/>
+
+
+<label>
+Description
+</label>
+
+<textarea
+id="productDescription"
+placeholder="Enter product description"
+></textarea>
+
+
+<label>
+Price
+</label>
+
+<input
+id="productPrice"
+type="number"
+placeholder="Enter price"
+/>
+
+
+<label>
+Product Image URL
+</label>
+
+<input
+id="productImage"
+placeholder="Paste product image URL"
+/>
+
+
+<button
+class="main-btn"
+onclick="addProduct()"
+>
+➕ Add Product
+</button>
+
+
+<div
+class="message success"
+id="productSuccess"
+>
+Product added successfully!
+</div>
+
+
+<div
+class="message error"
+id="productError"
+></div>
+
+</div>
+
+
+<!-- PRODUCTS -->
+
+<h2 class="section-title">
+📋 My Products
+</h2>
+
+
+<div
+class="products"
+id="products"
+>
+
+<div class="box">
+Loading products...
+</div>
+
+</div>
+
+
+</div>
+
+</section>
+
+
+<script>
+
+/* SUPABASE */
+
+const SUPABASE_URL =
+"https://pzdtpnvgdbomqmuyzhtv.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY =
+"sb_publishable_DqbtaPNKSD_1ELESNwy54Q_ForkRGvn";
+
+const supabaseClient =
+window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_PUBLISHABLE_KEY
+);
+
+
+/* GLOBAL */
+
+let currentUser = null;
+
+let currentStore = null;
+
+
+/* LOGIN */
+
+async function login(){
+
+const email =
+document
+.getElementById("email")
+.value
+.trim();
+
+const password =
+document
+.getElementById("password")
+.value;
+
+const errorBox =
+document
+.getElementById("loginError");
+
+errorBox.style.display =
+"none";
+
+if(!email || !password){
+
+errorBox.innerText =
+"Please enter email and password.";
+
+errorBox.style.display =
+"block";
+
+return;
+
+}
+
+
+const {data,error} =
+await supabaseClient
+.auth
+.signInWithPassword({
+
+email:email,
+
+password:password
+
+});
+
+
+if(error){
+
+errorBox.innerText =
+"Invalid email or password.";
+
+errorBox.style.display =
+"block";
+
+return;
+
+}
+
+
+currentUser =
+data.user;
+
+
+await loadStore();
+
+}
+
+
+/* LOAD STORE */
+
+async function loadStore(){
+
+const {data,error} =
+await supabaseClient
+.from("stores")
+.select("*")
+.eq(
+"owner_id",
+currentUser.id
+)
+.single();
+
+
+if(error){
+
+console.error(error);
+
+alert(
+"No store is connected to this owner account yet."
+);
+
+return;
+
+}
+
+
+currentStore =
+data;
+
+
+document
+.getElementById("loginBox")
+.style.display =
+"none";
+
+
+document
+.getElementById("dashboard")
+.style.display =
+"block";
+
+
+document
+.getElementById("logoutBtn")
+.style.display =
+"block";
+
+
+document
+.getElementById("storeName")
+.innerText =
+data.store_name || "My Store";
+
+
+document
+.getElementById("ownerName")
+.innerText =
+data.owner_name || "Owner";
+
+
+document
+.getElementById("storeId")
+.innerText =
+data.id;
+
+
+document
+.getElementById("editStoreName")
+.value =
+data.store_name || "";
+
+
+document
+.getElementById("editOwnerName")
+.value =
+data.owner_name || "";
+
+
+document
+.getElementById("editLogoUrl")
+.value =
+data.logo_url || "";
+
+
+document
+.getElementById("editBannerUrl")
+.value =
+data.banner_url || "";
+
+
+if(data.logo_url){
+
+document
+.getElementById("storeLogo")
+.src =
+data.logo_url;
+
+}
+
+
+await loadProducts();
+
+}
+
+
+/* UPDATE STORE */
+
+async function updateStore(){
+
+if(!currentStore){
+
+return;
+
+}
+
+
+const storeName =
+document
+.getElementById("editStoreName")
+.value
+.trim();
+
+
+const ownerName =
+document
+.getElementById("editOwnerName")
+.value
+.trim();
+
+
+const logoUrl =
+document
+.getElementById("editLogoUrl")
+.value
+.trim();
+
+
+const bannerUrl =
+document
+.getElementById("editBannerUrl")
+.value
+.trim();
+
+
+const {error} =
+await supabaseClient
+.from("stores")
+.update({
+
+store_name:
+storeName,
+
+owner_name:
+ownerName,
+
+logo_url:
+logoUrl,
+
+banner_url:
+bannerUrl
+
+})
+.eq(
+"id",
+currentStore.id
+);
+
+
+if(error){
+
+document
+.getElementById("storeError")
+.innerText =
+error.message;
+
+document
+.getElementById("storeError")
+.style.display =
+"block";
+
+return;
+
+}
+
+
+currentStore.store_name =
+storeName;
+
+currentStore.owner_name =
+ownerName;
+
+currentStore.logo_url =
+logoUrl;
+
+currentStore.banner_url =
+bannerUrl;
+
+
+document
+.getElementById("storeName")
+.innerText =
+storeName;
+
+
+document
+.getElementById("ownerName")
+.innerText =
+ownerName;
+
+
+if(logoUrl){
+
+document
+.getElementById("storeLogo")
+.src =
+logoUrl;
+
+}
+
+
+document
+.getElementById("storeSuccess")
+.style.display =
+"block";
+
+
+setTimeout(
+function(){
+
+document
+.getElementById("storeSuccess")
+.style.display =
+"none";
+
+},
+3000
+);
+
+}
+
+
+/* ADD PRODUCT */
+
+async function addProduct(){
+
+if(!currentStore){
+
+return;
+
+}
+
+
+const name =
+document
+.getElementById("productName")
+.value
+.trim();
+
+
+const description =
+document
+.getElementById("productDescription")
+.value
+.trim();
+
+
+const price =
+Number(
+document
+.getElementById("productPrice")
+.value
+);
+
+
+const imageUrl =
+document
+.getElementById("productImage")
+.value
+.trim();
+
+
+const errorBox =
+document
+.getElementById("productError");
+
+
+if(!name || !price){
+
+errorBox.innerText =
+"Please enter product name and price.";
+
+errorBox.style.display =
+"block";
+
+return;
+
+}
+
+
+const {error} =
+await supabaseClient
+.from("products")
+.insert([{
+
+store_id:
+currentStore.id,
+
+name:
+name,
+
+description:
+description,
+
+price:
+price,
+
+image_url:
+imageUrl
+
+}]);
+
+
+if(error){
+
+errorBox.innerText =
+error.message;
+
+errorBox.style.display =
+"block";
+
+return;
+
+}
+
+
+document
+.getElementById("productName")
+.value = "";
+
+document
+.getElementById("productDescription")
+.value = "";
+
+document
+.getElementById("productPrice")
+.value = "";
+
+document
+.getElementById("productImage")
+.value = "";
+
+
+document
+.getElementById("productSuccess")
+.style.display =
+"block";
+
+
+setTimeout(
+function(){
+
+document
+.getElementById("productSuccess")
+.style.display =
+"none";
+
+},
+3000
+);
+
+
+await loadProducts();
+
+}
+
+
+/* LOAD PRODUCTS */
+
+async function loadProducts(){
+
+const {data,error} =
+await supabaseClient
+.from("products")
+.select("*")
+.eq(
+"store_id",
+currentStore.id
+)
+.order(
+"id",
+{ascending:false}
+);
+
+
+const productsBox =
+document
+.getElementById("products");
+
+
+if(error){
+
+productsBox.innerHTML =
+`
+<div class="box">
+${error.message}
+</div>
+`;
+
+return;
+
+}
+
+
+if(!data || data.length === 0){
+
+productsBox.innerHTML =
+`
+<div class="box">
+No products added yet.
+</div>
+`;
+
+return;
+
+}
+
+
+productsBox.innerHTML =
+"";
+
+
+data.forEach(product => {
+
+productsBox.innerHTML += `
+
+<div class="product">
+
+<img
+src="${
+product.image_url ||
+'https://via.placeholder.com/400x250'
+}"
+>
+
+<div class="product-content">
+
+<h3>
+${product.name}
+</h3>
+
+<p>
+${product.description || ""}
+</p>
+
+<div class="price">
+₹${product.price}
+</div>
+
+<div class="product-actions">
+
+<button
+class="edit-btn"
+onclick="editProduct('${product.id}')"
+>
+✏️ Edit
+</button>
+
+<button
+class="delete-btn"
+onclick="deleteProduct('${product.id}')"
+>
+🗑️ Delete
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+`;
+
+});
+
+}
+
+
+/* EDIT PRODUCT */
+
+async function editProduct(id){
+
+const newName =
+prompt(
+"Enter new product name:"
+);
+
+if(!newName){
+
+return;
+
+}
+
+
+const newPrice =
+prompt(
+"Enter new price:"
+);
+
+if(!newPrice){
+
+return;
+
+}
+
+
+const {error} =
+await supabaseClient
+.from("products")
+.update({
+
+name:
+newName,
+
+price:
+Number(newPrice)
+
+})
+.eq(
+"id",
+id
+)
+.eq(
+"store_id",
+currentStore.id
+);
+
+
+if(error){
+
+alert(
+"Unable to update product."
+);
+
+return;
+
+}
+
+
+await loadProducts();
+
+}
+
+
+/* DELETE PRODUCT */
+
+async function deleteProduct(id){
+
+const confirmDelete =
+confirm(
+"Are you sure you want to delete this product?"
+);
+
+
+if(!confirmDelete){
+
+return;
+
+}
+
+
+const {error} =
+await supabaseClient
+.from("products")
+.delete()
+.eq(
+"id",
+id
+)
+.eq(
+"store_id",
+currentStore.id
+);
+
+
+if(error){
+
+alert(
+"Unable to delete product."
+);
+
+return;
+
+}
+
+
+await loadProducts();
+
+}
+
+
+/* LOGOUT */
+
+async function logout(){
+
+await supabaseClient
+.auth
+.signOut();
+
+
+location.reload();
+
+}
+
+</script>
+
+</body>
+</html>
