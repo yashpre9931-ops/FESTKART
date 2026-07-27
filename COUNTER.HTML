@@ -292,7 +292,6 @@ button{
 
 <body>
 
-
 <header>
 
 <div class="logo">
@@ -324,20 +323,17 @@ id="loginBox"
 Login to manage your counter.
 </p>
 
-
 <input
 type="email"
 id="email"
 placeholder="Owner Email"
 />
 
-
 <input
 type="password"
 id="password"
 placeholder="Password"
 />
-
 
 <button
 class="login-btn"
@@ -346,7 +342,6 @@ onclick="login()"
 Login
 </button>
 
-
 <button
 type="button"
 class="forgot-btn"
@@ -354,7 +349,6 @@ onclick="showForgotPassword()"
 >
 Forgot Password?
 </button>
-
 
 <div
 class="message error"
@@ -379,13 +373,11 @@ Enter your registered email address.
 We will send you a password reset link.
 </p>
 
-
 <input
 type="email"
 id="resetEmail"
 placeholder="Enter your email"
 />
-
 
 <button
 class="login-btn"
@@ -393,7 +385,6 @@ onclick="sendResetEmail()"
 >
 Send Reset Link
 </button>
-
 
 <button
 type="button"
@@ -403,12 +394,10 @@ onclick="showLogin()"
 ← Back to Login
 </button>
 
-
 <div
 class="message success"
 id="resetSuccess"
 ></div>
-
 
 <div
 class="message error"
@@ -432,20 +421,17 @@ id="resetBox"
 Enter your new password below.
 </p>
 
-
 <input
 type="password"
 id="newPassword"
 placeholder="New Password"
 />
 
-
 <input
 type="password"
 id="confirmPassword"
 placeholder="Confirm New Password"
 />
-
 
 <button
 class="login-btn"
@@ -454,12 +440,10 @@ onclick="updatePassword()"
 Update Password
 </button>
 
-
 <div
 class="message success"
 id="updateSuccess"
 ></div>
-
 
 <div
 class="message error"
@@ -523,7 +507,6 @@ Loading...
 
 <br>
 
-
 <label>
 Store Name
 </label>
@@ -532,7 +515,6 @@ Store Name
 id="editStoreName"
 placeholder="Enter store name"
 />
-
 
 <label>
 Owner Name
@@ -543,7 +525,6 @@ id="editOwnerName"
 placeholder="Enter owner name"
 />
 
-
 <label>
 Logo URL
 </label>
@@ -552,7 +533,6 @@ Logo URL
 id="editLogoUrl"
 placeholder="Paste logo image URL"
 />
-
 
 <label>
 Banner URL
@@ -563,7 +543,6 @@ id="editBannerUrl"
 placeholder="Paste banner image URL"
 />
 
-
 <button
 class="main-btn"
 onclick="updateStore()"
@@ -571,14 +550,12 @@ onclick="updateStore()"
 💾 Save Store Details
 </button>
 
-
 <div
 class="message success"
 id="storeSuccess"
 >
 Store details updated successfully!
 </div>
-
 
 <div
 class="message error"
@@ -595,7 +572,6 @@ id="storeError"
 🥤 Add New Product
 </h2>
 
-
 <div class="box product-form">
 
 <label>
@@ -607,7 +583,6 @@ id="productName"
 placeholder="Example: Chocolate Shake"
 />
 
-
 <label>
 Description
 </label>
@@ -616,7 +591,6 @@ Description
 id="productDescription"
 placeholder="Enter product description"
 ></textarea>
-
 
 <label>
 Price
@@ -628,7 +602,6 @@ type="number"
 placeholder="Enter price"
 />
 
-
 <label>
 Product Image URL
 </label>
@@ -638,7 +611,6 @@ id="productImage"
 placeholder="Paste product image URL"
 />
 
-
 <button
 class="main-btn"
 onclick="addProduct()"
@@ -646,14 +618,12 @@ onclick="addProduct()"
 ➕ Add Product
 </button>
 
-
 <div
 class="message success"
 id="productSuccess"
 >
 Product added successfully!
 </div>
-
 
 <div
 class="message error"
@@ -670,7 +640,6 @@ id="productError"
 📋 My Products
 </h2>
 
-
 <div
 class="products"
 id="products"
@@ -681,7 +650,6 @@ Loading products...
 </div>
 
 </div>
-
 
 </div>
 
@@ -893,6 +861,12 @@ return;
 }
 
 
+/*
+IMPORTANT:
+Password reset ke baad user ko
+directly counter.html par redirect karna hai.
+*/
+
 const {error} =
 await supabaseClient
 .auth
@@ -903,8 +877,7 @@ email,
 {
 
 redirectTo:
-window.location.origin +
-window.location.pathname
+"https://festkart-rn509vokd-festcart.vercel.app/counter.html"
 
 }
 
