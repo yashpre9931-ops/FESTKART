@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>FestCart | Counter Dashboard</title>
+<title>FestCart | Admin Dashboard</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -99,10 +100,6 @@ header{
   outline:none;
 }
 
-.login-box input:focus{
-  border-color:#ffb703;
-}
-
 .login-btn{
   width:100%;
   padding:15px;
@@ -147,6 +144,106 @@ header{
 
 .dashboard-head h1{
   font-size:30px;
+}
+
+/* COUNTER MANAGEMENT */
+
+.counter-box{
+  background:white;
+  padding:25px;
+  margin:25px 0;
+  border-radius:20px;
+  box-shadow:0 5px 20px rgba(0,0,0,.06);
+}
+
+.counter-box h2{
+  margin-bottom:8px;
+}
+
+.counter-box p{
+  color:#777;
+  margin-bottom:20px;
+}
+
+.counter-form{
+  display:grid;
+  grid-template-columns:
+  repeat(auto-fit,minmax(200px,1fr));
+  gap:12px;
+}
+
+.counter-form input{
+  width:100%;
+  padding:14px;
+  border:1px solid #ddd;
+  border-radius:12px;
+  outline:none;
+}
+
+.counter-form input:focus{
+  border-color:#ffb703;
+}
+
+.create-counter-btn{
+  margin-top:15px;
+  padding:13px 22px;
+  border:0;
+  border-radius:25px;
+  background:#ffb703;
+  font-weight:800;
+  cursor:pointer;
+}
+
+.counter-message{
+  display:none;
+  margin-top:15px;
+  padding:14px;
+  border-radius:12px;
+  line-height:1.7;
+}
+
+.counter-list{
+  margin-top:25px;
+}
+
+.counter-card{
+  background:#f8f8f8;
+  padding:18px;
+  margin-top:12px;
+  border-radius:15px;
+  border:1px solid #eee;
+}
+
+.counter-card-top{
+  display:flex;
+  justify-content:space-between;
+  gap:15px;
+  flex-wrap:wrap;
+}
+
+.counter-name{
+  font-size:19px;
+  font-weight:800;
+}
+
+.store-id{
+  margin-top:10px;
+  padding:10px;
+  background:white;
+  border-radius:10px;
+  word-break:break-all;
+  font-size:13px;
+  color:#555;
+}
+
+.copy-btn{
+  margin-top:10px;
+  padding:9px 15px;
+  border:0;
+  border-radius:20px;
+  background:#111;
+  color:white;
+  cursor:pointer;
 }
 
 /* STATS */
@@ -198,11 +295,6 @@ header{
   border-radius:12px;
   outline:none;
   background:white;
-}
-
-.controls input:focus,
-.controls select:focus{
-  border-color:#ffb703;
 }
 
 /* ORDERS */
@@ -280,7 +372,7 @@ header{
   background:white;
 }
 
-/* WHATSAPP BUTTON */
+/* WHATSAPP */
 
 .whatsapp-btn{
   width:100%;
@@ -292,12 +384,6 @@ header{
   color:white;
   font-weight:800;
   cursor:pointer;
-  transition:.2s;
-}
-
-.whatsapp-btn:hover{
-  opacity:.9;
-  transform:translateY(-1px);
 }
 
 /* EMPTY */
@@ -330,13 +416,10 @@ header{
     font-size:21px;
   }
 
-  .logout{
-    padding:9px 14px;
-  }
-
 }
 
 </style>
+
 </head>
 
 
@@ -351,7 +434,6 @@ header{
 Fest<span>Cart</span>
 </div>
 
-
 <div class="header-right">
 
 <button
@@ -362,7 +444,6 @@ style="display:none;"
 >
 🔄 Refresh
 </button>
-
 
 <button
 class="logout"
@@ -388,9 +469,8 @@ id="loginBox"
 <h1>🔐 Admin Login</h1>
 
 <p>
-Login to manage FestCart orders.
+Login to manage FestCart counters and orders.
 </p>
-
 
 <input
 type="email"
@@ -398,13 +478,11 @@ id="email"
 placeholder="Admin Email"
 />
 
-
 <input
 type="password"
 id="password"
 placeholder="Password"
 />
-
 
 <button
 class="login-btn"
@@ -412,7 +490,6 @@ onclick="login()"
 >
 Login
 </button>
-
 
 <div
 class="message error"
@@ -436,8 +513,79 @@ id="dashboard"
 <div class="dashboard-head">
 
 <h1>
-📊 Counter Dashboard
+📊 FestCart Admin Dashboard
 </h1>
+
+</div>
+
+
+
+<!-- COUNTER MANAGEMENT -->
+
+<div class="counter-box">
+
+<h2>
+🏪 Counter Management
+</h2>
+
+<p>
+Create a new counter for a college fest.
+Each counter gets its own unique Store ID.
+</p>
+
+
+<div class="counter-form">
+
+<input
+type="text"
+id="storeName"
+placeholder="🏪 Counter Name"
+/>
+
+<input
+type="text"
+id="ownerName"
+placeholder="👤 Owner Name"
+/>
+
+<input
+type="email"
+id="ownerEmail"
+placeholder="📧 Owner Email"
+/>
+
+</div>
+
+
+<button
+class="create-counter-btn"
+onclick="createCounter()"
+>
+➕ Create New Counter
+</button>
+
+
+<div
+class="counter-message"
+id="counterMessage"
+></div>
+
+
+<div class="counter-list">
+
+<h3>
+📋 Created Counters
+</h3>
+
+<div id="counterList">
+
+<div class="empty">
+Loading counters...
+</div>
+
+</div>
+
+</div>
 
 </div>
 
@@ -446,7 +594,6 @@ id="dashboard"
 <!-- STATS -->
 
 <div class="stats">
-
 
 <div class="stat">
 
@@ -529,7 +676,7 @@ Total Orders
 
 
 
-<!-- SEARCH & FILTER -->
+<!-- SEARCH -->
 
 <div class="controls">
 
@@ -610,7 +757,7 @@ SUPABASE_PUBLISHABLE_KEY
 
 
 
-/* GLOBAL ORDERS */
+/* GLOBAL */
 
 let allOrders = [];
 
@@ -638,7 +785,8 @@ document
 .getElementById("loginError");
 
 
-errorBox.style.display="none";
+errorBox.style.display =
+"none";
 
 
 if(!email || !password){
@@ -646,7 +794,8 @@ if(!email || !password){
 errorBox.innerText =
 "Please enter email and password.";
 
-errorBox.style.display="block";
+errorBox.style.display =
+"block";
 
 return;
 
@@ -670,7 +819,8 @@ if(error){
 errorBox.innerText =
 "Invalid email or password.";
 
-errorBox.style.display="block";
+errorBox.style.display =
+"block";
 
 return;
 
@@ -689,25 +839,31 @@ function showDashboard(){
 
 document
 .getElementById("loginBox")
-.style.display="none";
+.style.display =
+"none";
 
 
 document
 .getElementById("dashboard")
-.style.display="block";
+.style.display =
+"block";
 
 
 document
 .getElementById("logoutBtn")
-.style.display="block";
+.style.display =
+"block";
 
 
 document
 .getElementById("refreshBtn")
-.style.display="block";
+.style.display =
+"block";
 
 
 loadOrders();
+
+loadCounters();
 
 }
 
@@ -724,29 +880,32 @@ await supabaseClient
 
 document
 .getElementById("dashboard")
-.style.display="none";
+.style.display =
+"none";
 
 
 document
 .getElementById("loginBox")
-.style.display="block";
+.style.display =
+"block";
 
 
 document
 .getElementById("logoutBtn")
-.style.display="none";
+.style.display =
+"none";
 
 
 document
 .getElementById("refreshBtn")
-.style.display="none";
-
+.style.display =
+"none";
 
 }
 
 
 
-/* SESSION CHECK */
+/* SESSION */
 
 async function checkSession(){
 
@@ -759,6 +918,327 @@ await supabaseClient
 if(data.session){
 
 showDashboard();
+
+}
+
+}
+
+
+
+/* CREATE COUNTER */
+
+async function createCounter(){
+
+const storeName =
+document
+.getElementById("storeName")
+.value
+.trim();
+
+
+const ownerName =
+document
+.getElementById("ownerName")
+.value
+.trim();
+
+
+const ownerEmail =
+document
+.getElementById("ownerEmail")
+.value
+.trim();
+
+
+const message =
+document
+.getElementById("counterMessage");
+
+
+message.style.display =
+"none";
+
+
+if(!storeName){
+
+message.innerText =
+"❌ Please enter Counter Name.";
+
+message.style.display =
+"block";
+
+return;
+
+}
+
+
+if(!ownerName){
+
+message.innerText =
+"❌ Please enter Owner Name.";
+
+message.style.display =
+"block";
+
+return;
+
+}
+
+
+if(!ownerEmail){
+
+message.innerText =
+"❌ Please enter Owner Email.";
+
+message.style.display =
+"block";
+
+return;
+
+}
+
+
+const {data,error} =
+await supabaseClient
+.from("stores")
+.insert([{
+
+store_name:
+storeName,
+
+owner_name:
+ownerName,
+
+owner_email:
+ownerEmail
+
+}])
+.select()
+.single();
+
+
+if(error){
+
+console.error(error);
+
+message.innerText =
+"❌ Counter creation failed: " +
+error.message;
+
+message.style.background =
+"#ffe5e5";
+
+message.style.color =
+"#b00020";
+
+message.style.display =
+"block";
+
+return;
+
+}
+
+
+message.innerHTML = `
+
+✅ <b>Counter Created Successfully!</b>
+
+<br>
+
+🏪 Counter:
+${data.store_name}
+
+<br>
+
+👤 Owner:
+${data.owner_name}
+
+<br>
+
+🆔 Store ID:
+${data.id}
+
+`;
+
+message.style.background =
+"#e7f7ed";
+
+message.style.color =
+"#137333";
+
+message.style.display =
+"block";
+
+
+document
+.getElementById("storeName")
+.value = "";
+
+
+document
+.getElementById("ownerName")
+.value = "";
+
+
+document
+.getElementById("ownerEmail")
+.value = "";
+
+
+loadCounters();
+
+}
+
+
+
+/* LOAD COUNTERS */
+
+async function loadCounters(){
+
+const box =
+document
+.getElementById("counterList");
+
+
+box.innerHTML =
+'<div class="empty">Loading counters...</div>';
+
+
+const {data,error} =
+await supabaseClient
+.from("stores")
+.select("*")
+.order(
+"created_at",
+{ascending:false}
+);
+
+
+if(error){
+
+console.error(error);
+
+box.innerHTML = `
+
+<div class="empty">
+
+❌ Unable to load counters.
+
+<br><br>
+
+${error.message}
+
+</div>
+
+`;
+
+return;
+
+}
+
+
+if(!data || !data.length){
+
+box.innerHTML = `
+
+<div class="empty">
+
+🏪 No counters created yet.
+
+</div>
+
+`;
+
+return;
+
+}
+
+
+box.innerHTML = "";
+
+
+data.forEach(store => {
+
+box.innerHTML += `
+
+<div class="counter-card">
+
+<div class="counter-card-top">
+
+<div>
+
+<div class="counter-name">
+
+🏪 ${store.store_name}
+
+</div>
+
+<div style="margin-top:8px;color:#666;">
+
+👤 ${store.owner_name || "Owner not added"}
+
+</div>
+
+<div style="margin-top:5px;color:#666;">
+
+📧 ${store.owner_email || "Email not added"}
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="store-id">
+
+🆔 <b>Unique Store ID:</b>
+
+<br>
+
+${store.id}
+
+</div>
+
+
+<button
+class="copy-btn"
+onclick="copyStoreId('${store.id}')"
+>
+
+📋 Copy Store ID
+
+</button>
+
+</div>
+
+`;
+
+});
+
+}
+
+
+
+/* COPY STORE ID */
+
+async function copyStoreId(id){
+
+try{
+
+await navigator.clipboard.writeText(id);
+
+alert(
+"Store ID copied successfully!"
+);
+
+}catch(error){
+
+console.error(error);
+
+alert(
+"Unable to copy Store ID."
+);
 
 }
 
@@ -813,10 +1293,13 @@ return;
 }
 
 
-allOrders = data || [];
+allOrders =
+data || [];
 
 
-updateStats(allOrders);
+updateStats(
+allOrders
+);
 
 
 applyFilters();
@@ -947,7 +1430,7 @@ status === "all"
 order.status === status;
 
 
-return (
+return(
 matchesSearch &&
 matchesStatus
 );
@@ -955,7 +1438,9 @@ matchesStatus
 });
 
 
-renderOrders(filtered);
+renderOrders(
+filtered
+);
 
 }
 
@@ -987,7 +1472,8 @@ return;
 }
 
 
-box.innerHTML = "";
+box.innerHTML =
+"";
 
 
 data.forEach(order => {
@@ -1010,7 +1496,6 @@ ${item.name}
 × ${item.quantity}
 
 </span>
-
 
 <span>
 
@@ -1134,7 +1619,6 @@ ${order.status === "new" ? "selected" : ""}
 </option>
 
 
-
 <option
 
 value="preparing"
@@ -1148,7 +1632,6 @@ ${order.status === "preparing" ? "selected" : ""}
 </option>
 
 
-
 <option
 
 value="ready"
@@ -1160,7 +1643,6 @@ ${order.status === "ready" ? "selected" : ""}
 ✅ Ready
 
 </option>
-
 
 
 <option
@@ -1233,12 +1715,11 @@ String(phone)
 .replace(/\D/g,"");
 
 
-/* Add India country code */
-
 if(cleanPhone.length === 10){
 
 cleanPhone =
-"91" + cleanPhone;
+"91" +
+cleanPhone;
 
 }
 
@@ -1265,7 +1746,9 @@ const whatsappURL =
 "https://wa.me/" +
 cleanPhone +
 "?text=" +
-encodeURIComponent(message);
+encodeURIComponent(
+message
+);
 
 
 window.open(
@@ -1289,7 +1772,8 @@ await supabaseClient
 .from("bookings")
 .update({
 
-status:status
+status:
+status
 
 })
 .eq(
@@ -1322,7 +1806,6 @@ await loadOrders();
 checkSession();
 
 </script>
-
 
 </body>
 </html>
