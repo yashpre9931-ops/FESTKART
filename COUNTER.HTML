@@ -88,6 +88,11 @@ textarea{
   outline:none;
 }
 
+input:focus,
+textarea:focus{
+  border-color:#ffb703;
+}
+
 textarea{
   resize:vertical;
   min-height:90px;
@@ -108,7 +113,42 @@ button{
   font-weight:800;
 }
 
+.forgot-btn{
+  width:100%;
+  margin-top:12px;
+  padding:12px;
+  border:0;
+  background:transparent;
+  color:#555;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.forgot-btn:hover{
+  color:#d89000;
+}
+
+.back-btn{
+  width:100%;
+  margin-top:12px;
+  padding:12px;
+  border:0;
+  background:#f1f1f1;
+  color:#333;
+  border-radius:30px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
 .dashboard{
+  display:none;
+}
+
+.forgot-box{
+  display:none;
+}
+
+.reset-box{
   display:none;
 }
 
@@ -136,6 +176,7 @@ button{
 .store-info p{
   color:#777;
   margin:6px 0;
+  word-break:break-all;
 }
 
 .section-title{
@@ -215,6 +256,7 @@ button{
   padding:14px;
   margin-top:15px;
   border-radius:10px;
+  line-height:1.5;
 }
 
 .success{
@@ -225,6 +267,11 @@ button{
 .error{
   background:#ffe5e5;
   color:#b00020;
+}
+
+.info{
+  background:#e8f1ff;
+  color:#1456a0;
 }
 
 @media(max-width:600px){
@@ -245,6 +292,7 @@ button{
 
 <body>
 
+
 <header>
 
 <div class="logo">
@@ -263,7 +311,7 @@ Logout
 </header>
 
 
-<!-- LOGIN -->
+<!-- LOGIN BOX -->
 
 <section
 class="login-box"
@@ -276,17 +324,20 @@ id="loginBox"
 Login to manage your counter.
 </p>
 
+
 <input
 type="email"
 id="email"
 placeholder="Owner Email"
 />
 
+
 <input
 type="password"
 id="password"
 placeholder="Password"
 />
+
 
 <button
 class="login-btn"
@@ -295,12 +346,128 @@ onclick="login()"
 Login
 </button>
 
+
+<button
+type="button"
+class="forgot-btn"
+onclick="showForgotPassword()"
+>
+Forgot Password?
+</button>
+
+
 <div
 class="message error"
 id="loginError"
 ></div>
 
 </section>
+
+
+
+<!-- FORGOT PASSWORD -->
+
+<section
+class="login-box forgot-box"
+id="forgotBox"
+>
+
+<h1>🔑 Forgot Password?</h1>
+
+<p>
+Enter your registered email address.
+We will send you a password reset link.
+</p>
+
+
+<input
+type="email"
+id="resetEmail"
+placeholder="Enter your email"
+/>
+
+
+<button
+class="login-btn"
+onclick="sendResetEmail()"
+>
+Send Reset Link
+</button>
+
+
+<button
+type="button"
+class="back-btn"
+onclick="showLogin()"
+>
+← Back to Login
+</button>
+
+
+<div
+class="message success"
+id="resetSuccess"
+></div>
+
+
+<div
+class="message error"
+id="resetError"
+></div>
+
+</section>
+
+
+
+<!-- RESET PASSWORD -->
+
+<section
+class="login-box reset-box"
+id="resetBox"
+>
+
+<h1>🔒 Create New Password</h1>
+
+<p>
+Enter your new password below.
+</p>
+
+
+<input
+type="password"
+id="newPassword"
+placeholder="New Password"
+/>
+
+
+<input
+type="password"
+id="confirmPassword"
+placeholder="Confirm New Password"
+/>
+
+
+<button
+class="login-btn"
+onclick="updatePassword()"
+>
+Update Password
+</button>
+
+
+<div
+class="message success"
+id="updateSuccess"
+></div>
+
+
+<div
+class="message error"
+id="updateError"
+></div>
+
+</section>
+
 
 
 <!-- DASHBOARD -->
@@ -355,6 +522,7 @@ Loading...
 </h2>
 
 <br>
+
 
 <label>
 Store Name
@@ -418,6 +586,7 @@ id="storeError"
 ></div>
 
 </div>
+
 
 
 <!-- ADD PRODUCT -->
@@ -494,6 +663,7 @@ id="productError"
 </div>
 
 
+
 <!-- PRODUCTS -->
 
 <h2 class="section-title">
@@ -518,15 +688,19 @@ Loading products...
 </section>
 
 
+
 <script>
+
 
 /* SUPABASE */
 
 const SUPABASE_URL =
 "https://pzdtpnvgdbomqmuyzhtv.supabase.co";
 
+
 const SUPABASE_PUBLISHABLE_KEY =
 "sb_publishable_DqbtaPNKSD_1ELESNwy54Q_ForkRGvn";
+
 
 const supabaseClient =
 window.supabase.createClient(
@@ -535,11 +709,13 @@ SUPABASE_PUBLISHABLE_KEY
 );
 
 
+
 /* GLOBAL */
 
 let currentUser = null;
 
 let currentStore = null;
+
 
 
 /* LOGIN */
@@ -552,17 +728,21 @@ document
 .value
 .trim();
 
+
 const password =
 document
 .getElementById("password")
 .value;
 
+
 const errorBox =
 document
 .getElementById("loginError");
 
+
 errorBox.style.display =
 "none";
+
 
 if(!email || !password){
 
@@ -611,6 +791,317 @@ await loadStore();
 }
 
 
+
+/* FORGOT PASSWORD SCREEN */
+
+function showForgotPassword(){
+
+document
+.getElementById("loginBox")
+.style.display =
+"none";
+
+
+document
+.getElementById("resetBox")
+.style.display =
+"none";
+
+
+document
+.getElementById("forgotBox")
+.style.display =
+"block";
+
+
+document
+.getElementById("resetEmail")
+.value =
+document
+.getElementById("email")
+.value
+.trim();
+
+}
+
+
+
+/* BACK TO LOGIN */
+
+function showLogin(){
+
+document
+.getElementById("forgotBox")
+.style.display =
+"none";
+
+
+document
+.getElementById("resetBox")
+.style.display =
+"none";
+
+
+document
+.getElementById("loginBox")
+.style.display =
+"block";
+
+}
+
+
+
+/* SEND PASSWORD RESET EMAIL */
+
+async function sendResetEmail(){
+
+const email =
+document
+.getElementById("resetEmail")
+.value
+.trim();
+
+
+const successBox =
+document
+.getElementById("resetSuccess");
+
+
+const errorBox =
+document
+.getElementById("resetError");
+
+
+successBox.style.display =
+"none";
+
+
+errorBox.style.display =
+"none";
+
+
+if(!email){
+
+errorBox.innerText =
+"Please enter your email address.";
+
+errorBox.style.display =
+"block";
+
+return;
+
+}
+
+
+const {error} =
+await supabaseClient
+.auth
+.resetPasswordForEmail(
+
+email,
+
+{
+
+redirectTo:
+window.location.origin +
+window.location.pathname
+
+}
+
+);
+
+
+if(error){
+
+console.error(error);
+
+
+errorBox.innerText =
+"Unable to send reset link. Please check your email address.";
+
+errorBox.style.display =
+"block";
+
+return;
+
+}
+
+
+successBox.innerText =
+"✅ Password reset link has been sent to your email. Please check your inbox.";
+
+successBox.style.display =
+"block";
+
+}
+
+
+
+/* PASSWORD UPDATE SCREEN */
+
+async function updatePassword(){
+
+const newPassword =
+document
+.getElementById("newPassword")
+.value;
+
+
+const confirmPassword =
+document
+.getElementById("confirmPassword")
+.value;
+
+
+const successBox =
+document
+.getElementById("updateSuccess");
+
+
+const errorBox =
+document
+.getElementById("updateError");
+
+
+successBox.style.display =
+"none";
+
+
+errorBox.style.display =
+"none";
+
+
+if(!newPassword || !confirmPassword){
+
+errorBox.innerText =
+"Please fill both password fields.";
+
+errorBox.style.display =
+"block";
+
+return;
+
+}
+
+
+if(newPassword.length < 6){
+
+errorBox.innerText =
+"Password must be at least 6 characters.";
+
+errorBox.style.display =
+"block";
+
+return;
+
+}
+
+
+if(newPassword !== confirmPassword){
+
+errorBox.innerText =
+"Passwords do not match.";
+
+errorBox.style.display =
+"block";
+
+return;
+
+}
+
+
+const {error} =
+await supabaseClient
+.auth
+.updateUser({
+
+password:
+newPassword
+
+});
+
+
+if(error){
+
+console.error(error);
+
+
+errorBox.innerText =
+"Unable to update password. Please try again.";
+
+errorBox.style.display =
+"block";
+
+return;
+
+}
+
+
+successBox.innerText =
+"✅ Password updated successfully! You can now login with your new password.";
+
+successBox.style.display =
+"block";
+
+
+setTimeout(
+
+function(){
+
+showLogin();
+
+},
+
+2500
+
+);
+
+}
+
+
+
+/* CHECK PASSWORD RESET SESSION */
+
+supabaseClient
+.auth
+.onAuthStateChange(
+
+(event,session)=>{
+
+
+if(event === "PASSWORD_RECOVERY"){
+
+document
+.getElementById("loginBox")
+.style.display =
+"none";
+
+
+document
+.getElementById("forgotBox")
+.style.display =
+"none";
+
+
+document
+.getElementById("dashboard")
+.style.display =
+"none";
+
+
+document
+.getElementById("resetBox")
+.style.display =
+"block";
+
+}
+
+}
+
+);
+
+
+
 /* LOAD STORE */
 
 async function loadStore(){
@@ -630,9 +1121,22 @@ if(error){
 
 console.error(error);
 
-alert(
-"No store is connected to this owner account yet."
-);
+
+await supabaseClient
+.auth
+.signOut();
+
+
+document
+.getElementById("loginError")
+.innerText =
+"No store is connected to this owner account yet.";
+
+
+document
+.getElementById("loginError")
+.style.display =
+"block";
 
 return;
 
@@ -645,6 +1149,18 @@ data;
 
 document
 .getElementById("loginBox")
+.style.display =
+"none";
+
+
+document
+.getElementById("forgotBox")
+.style.display =
+"none";
+
+
+document
+.getElementById("resetBox")
 .style.display =
 "none";
 
@@ -664,13 +1180,15 @@ document
 document
 .getElementById("storeName")
 .innerText =
-data.store_name || "My Store";
+data.store_name ||
+"My Store";
 
 
 document
 .getElementById("ownerName")
 .innerText =
-data.owner_name || "Owner";
+data.owner_name ||
+"Owner";
 
 
 document
@@ -682,25 +1200,29 @@ data.id;
 document
 .getElementById("editStoreName")
 .value =
-data.store_name || "";
+data.store_name ||
+"";
 
 
 document
 .getElementById("editOwnerName")
 .value =
-data.owner_name || "";
+data.owner_name ||
+"";
 
 
 document
 .getElementById("editLogoUrl")
 .value =
-data.logo_url || "";
+data.logo_url ||
+"";
 
 
 document
 .getElementById("editBannerUrl")
 .value =
-data.banner_url || "";
+data.banner_url ||
+"";
 
 
 if(data.logo_url){
@@ -716,6 +1238,7 @@ data.logo_url;
 await loadProducts();
 
 }
+
 
 
 /* UPDATE STORE */
@@ -788,6 +1311,7 @@ document
 .innerText =
 error.message;
 
+
 document
 .getElementById("storeError")
 .style.display =
@@ -801,11 +1325,14 @@ return;
 currentStore.store_name =
 storeName;
 
+
 currentStore.owner_name =
 ownerName;
 
+
 currentStore.logo_url =
 logoUrl;
+
 
 currentStore.banner_url =
 bannerUrl;
@@ -840,6 +1367,7 @@ document
 
 
 setTimeout(
+
 function(){
 
 document
@@ -848,10 +1376,13 @@ document
 "none";
 
 },
+
 3000
+
 );
 
 }
+
 
 
 /* ADD PRODUCT */
@@ -897,6 +1428,10 @@ document
 const errorBox =
 document
 .getElementById("productError");
+
+
+errorBox.style.display =
+"none";
 
 
 if(!name || !price){
@@ -950,19 +1485,26 @@ return;
 
 document
 .getElementById("productName")
-.value = "";
+.value =
+"";
+
 
 document
 .getElementById("productDescription")
-.value = "";
+.value =
+"";
+
 
 document
 .getElementById("productPrice")
-.value = "";
+.value =
+"";
+
 
 document
 .getElementById("productImage")
-.value = "";
+.value =
+"";
 
 
 document
@@ -972,6 +1514,7 @@ document
 
 
 setTimeout(
+
 function(){
 
 document
@@ -980,13 +1523,16 @@ document
 "none";
 
 },
+
 3000
+
 );
 
 
 await loadProducts();
 
 }
+
 
 
 /* LOAD PRODUCTS */
@@ -1017,7 +1563,9 @@ if(error){
 productsBox.innerHTML =
 `
 <div class="box">
+
 ${error.message}
+
 </div>
 `;
 
@@ -1031,7 +1579,9 @@ if(!data || data.length === 0){
 productsBox.innerHTML =
 `
 <div class="box">
+
 No products added yet.
+
 </div>
 `;
 
@@ -1080,6 +1630,7 @@ onclick="editProduct('${product.id}')"
 ✏️ Edit
 </button>
 
+
 <button
 class="delete-btn"
 onclick="deleteProduct('${product.id}')"
@@ -1100,6 +1651,7 @@ onclick="deleteProduct('${product.id}')"
 }
 
 
+
 /* EDIT PRODUCT */
 
 async function editProduct(id){
@@ -1108,6 +1660,7 @@ const newName =
 prompt(
 "Enter new product name:"
 );
+
 
 if(!newName){
 
@@ -1120,6 +1673,7 @@ const newPrice =
 prompt(
 "Enter new price:"
 );
+
 
 if(!newPrice){
 
@@ -1164,6 +1718,7 @@ return;
 await loadProducts();
 
 }
+
 
 
 /* DELETE PRODUCT */
@@ -1211,6 +1766,7 @@ return;
 await loadProducts();
 
 }
+
 
 
 /* LOGOUT */
