@@ -21,11 +21,12 @@
   
   label { font-weight: bold; display: block; margin-top: 15px; margin-bottom: 5px; }
   input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; }
-  button { width: 100%; margin-top: 25px; padding: 15px; border: 0; border-radius: 30px; background: #111; color: white; font-weight: 800; cursor: pointer; font-size: 16px; transition: 0.3s; }
-  button:hover { background: #ffb703; color: #111; }
   
-  .logout-btn { background: #d93025; margin-top: 15px; }
-  .logout-btn:hover { background: #b3261e; color: white; }
+  .btn-primary { width: 100%; margin-top: 25px; padding: 15px; border: 0; border-radius: 30px; background: #111; color: white; font-weight: 800; cursor: pointer; font-size: 16px; transition: 0.3s; }
+  .btn-primary:hover { background: #333; }
+  
+  .logout-btn { background: #d93025; margin-top: 15px; width: 100%; padding: 15px; border: 0; border-radius: 30px; color: white; font-weight: bold; cursor: pointer; }
+  .logout-btn:hover { background: #b3261e; }
 
   #counterMessage, #loginError { margin-top: 20px; padding: 15px; border-radius: 10px; display: none; line-height: 1.6; }
 </style>
@@ -41,7 +42,7 @@
 
 <!-- 🔒 ADMIN LOGIN SECTION -->
 <div class="container" id="loginSection">
-    <h2>🔒 Admin Login</h2>
+    <h2>🔒 Admin Access</h2>
     
     <label>Admin Email</label>
     <input type="email" id="adminEmail" placeholder="Enter Admin Email">
@@ -49,11 +50,11 @@
     <label>Password</label>
     <input type="password" id="adminPassword" placeholder="Enter Password">
 
-    <button onclick="loginAdmin()">Login to Dashboard</button>
+    <button class="btn-primary" onclick="loginAdmin()">Login to Dashboard</button>
     <div id="loginError"></div>
 </div>
 
-<!-- ⚙️ ADMIN DASHBOARD SECTION (Hidden by default) -->
+<!-- ⚙️ ADMIN DASHBOARD SECTION -->
 <div class="container" id="dashboardSection" style="display: none;">
     <h2>⚙️ Create New Counter</h2>
 
@@ -63,10 +64,14 @@
     <label>Owner Name</label>
     <input type="text" id="ownerName" placeholder="e.g. Yash">
 
-    <label>Owner Email</label>
-    <input type="email" id="ownerEmail" placeholder="e.g. yash@example.com">
+    <label>Owner Email (Login ID)</label>
+    <input type="email" id="ownerEmail" placeholder="e.g. counter1@festcart.com">
 
-    <button onclick="createCounter()">Create Counter</button>
+    <!-- NEW FIELD ADDED HERE -->
+    <label>Set Owner Password</label>
+    <input type="text" id="ownerPassword" placeholder="e.g. Counter@123 (Min 6 chars)">
+
+    <button class="btn-primary" onclick="createCounter()">Create Counter</button>
     <div id="counterMessage"></div>
 
     <hr style="margin: 30px 0; border: 1px solid #eee;">
@@ -89,11 +94,9 @@ async function checkAuthStatus() {
     const { data: { session } } = await supabaseClient.auth.getSession();
     
     if (session) {
-        // User logged in hai, Dashboard dikhao
         document.getElementById("loginSection").style.display = "none";
         document.getElementById("dashboardSection").style.display = "block";
     } else {
-        // Logged out hai, Login form dikhao
         document.getElementById("loginSection").style.display = "block";
         document.getElementById("dashboardSection").style.display = "none";
     }
@@ -111,27 +114,22 @@ async function loginAdmin() {
 
     if(!email || !password) {
         errorBox.innerText = "❌ Please enter email and password.";
-        errorBox.style.background = "#ffe5e5";
-        errorBox.style.color = "#b00020";
         errorBox.style.display = "block";
         return;
     }
 
-    const { data, error } = await supabaseClient.auth.signInWithPassword({
-        email: email,
-        password: password,
-    });
+    errorBox.innerText = "⏳ Logging in...";
+    errorBox.style.background = "#e8f1ff"; errorBox.style.color = "#1456a0"; errorBox.style.display = "block";
+
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email: email, password: password });
 
     if (error) {
         errorBox.innerText = "❌ Login Failed: " + error.message;
-        errorBox.style.background = "#ffe5e5";
-        errorBox.style.color = "#b00020";
-        errorBox.style.display = "block";
+        errorBox.style.background = "#ffe5e5"; errorBox.style.color = "#b00020";
     } else {
-        // Login success
         document.getElementById("adminEmail").value = "";
         document.getElementById("adminPassword").value = "";
-        checkAuthStatus(); // Reload UI
+        checkAuthStatus(); 
     }
 }
 
@@ -140,7 +138,7 @@ async function loginAdmin() {
 ============================== */
 async function logoutAdmin() {
     await supabaseClient.auth.signOut();
-    checkAuthStatus(); // Reload UI
+    checkAuthStatus(); 
 }
 
 /* ==============================
@@ -150,12 +148,19 @@ async function createCounter(){
   const storeName = document.getElementById("storeName").value.trim();
   const ownerName = document.getElementById("ownerName").value.trim();
   const ownerEmail = document.getElementById("ownerEmail").value.trim();
+  const ownerPassword = document.getElementById("ownerPassword").value.trim(); // NEW
   const message = document.getElementById("counterMessage");
 
   message.style.display = "none";
 
-  if(!storeName || !ownerName || !ownerEmail){
-    message.innerText = "❌ Please fill all details.";
+  if(!storeName || !ownerName || !ownerEmail || !ownerPassword){
+    message.innerText = "❌ Please fill all details, including password.";
+    message.style.background = "#ffe5e5"; message.style.color = "#b00020"; message.style.display = "block";
+    return;
+  }
+
+  if(ownerPassword.length < 6) {
+    message.innerText = "❌ Password must be at least 6 characters long.";
     message.style.background = "#ffe5e5"; message.style.color = "#b00020"; message.style.display = "block";
     return;
   }
@@ -164,8 +169,9 @@ async function createCounter(){
   message.style.background = "#e8f1ff"; message.style.color = "#1456a0"; message.style.display = "block";
 
   try{
+    // YAHAN HUM AB DATABASE LOGIC LIKHENGE (Next step me)
     const { data, error } = await supabaseClient.functions.invoke("YOUR_FUNCTION_NAME", {
-          body: { store_name: storeName, owner_name: ownerName, owner_email: ownerEmail }
+          body: { store_name: storeName, owner_name: ownerName, owner_email: ownerEmail, owner_password: ownerPassword }
     });
 
     if(error || (!data || !data.success)){
@@ -177,14 +183,17 @@ async function createCounter(){
     message.innerHTML = `✅ <b>Counter Created!</b><br>🏪 ${data.store.store_name}<br>👤 ${data.store.owner_name}`;
     message.style.background = "#e7f7ed"; message.style.color = "#137333"; message.style.display = "block";
 
-    document.getElementById("storeName").value = ""; document.getElementById("ownerName").value = ""; document.getElementById("ownerEmail").value = "";
+    // Clear Form
+    document.getElementById("storeName").value = ""; 
+    document.getElementById("ownerName").value = ""; 
+    document.getElementById("ownerEmail").value = "";
+    document.getElementById("ownerPassword").value = "";
   } catch(error){
     message.innerText = "❌ Error: " + error.message;
     message.style.background = "#ffe5e5"; message.style.color = "#b00020"; message.style.display = "block";
   }
 }
 
-// Run this when page loads
 checkAuthStatus();
 </script>
 
