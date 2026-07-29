@@ -3,1389 +3,374 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>FestCart | Pre-Book & Pick Up</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+  body { background: #f7f7f8; color: #111; }
+  
+  header { position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; padding: 16px 6%; background: #111; color: white; }
+  .logo { font-size: 25px; font-weight: 800; cursor: pointer; }
+  .logo span { color: #ffb703; }
+  .cart-btn { border: 0; background: #ffb703; color: #111; padding: 11px 18px; border-radius: 30px; font-weight: 700; cursor: pointer; }
 
-*{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
-  font-family:Arial,sans-serif;
-}
+  .navbar { background-color: #222; padding: 12px 6%; text-align: center; border-bottom: 3px solid #ffb703; display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
+  .navbar a { color: #fff; text-decoration: none; font-weight: bold; font-size: 14px; padding: 5px 10px; border-radius: 5px; transition: background 0.3s; }
+  .navbar a:hover { background-color: #ffb703; color: #111; }
 
-body{
-  background:#f7f7f8;
-  color:#111;
-}
+  .hero { padding: 60px 7%; text-align: center; background: linear-gradient(135deg, #111, #292929); color: white; }
+  .hero h1 { font-size: clamp(35px, 8vw, 60px); line-height: 1.1; }
+  .hero h1 span { color: #ffb703; }
+  .hero p { max-width: 600px; margin: 20px auto; color: #ddd; line-height: 1.6; }
 
-header{
-  position:sticky;
-  top:0;
-  z-index:100;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:16px 6%;
-  background:#111;
-  color:white;
-}
+  .container { width: 90%; max-width: 1100px; margin: 40px auto; }
+  
+  .section-title { font-size: 28px; margin-bottom: 20px; border-bottom: 2px solid #ffb703; display: inline-block; padding-bottom: 5px; }
 
-.logo{
-  font-size:25px;
-  font-weight:800;
-}
+  /* STORE CARDS */
+  .store-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 40px; }
+  .store-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.05); cursor: pointer; transition: 0.3s; text-align: center; border: 2px solid transparent; }
+  .store-card:hover { transform: translateY(-5px); border-color: #ffb703; }
+  .store-banner { height: 120px; background: #ddd; background-size: cover; background-position: center; }
+  .store-info { padding: 20px; }
+  .store-info h3 { font-size: 22px; color: #111; }
 
-.logo span{
-  color:#ffb703;
-}
+  /* MENU CARDS */
+  .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
+  .menu-card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #ffb703; }
+  .menu-card h4 { font-size: 18px; margin-bottom: 5px; }
+  .add-btn { background: #111; color: white; border: 0; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; }
+  .add-btn:hover { background: #ffb703; color: #111; }
+  .out-of-stock { color: red; font-size: 12px; font-weight: bold; }
 
-.cart-btn{
-  border:0;
-  background:#ffb703;
-  color:#111;
-  padding:11px 18px;
-  border-radius:30px;
-  font-weight:700;
-  cursor:pointer;
-}
+  /* CART & BOOKING */
+  .box { background: white; margin-top: 35px; padding: 25px; border-radius: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.06); }
+  .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
+  .qty-btn { padding: 5px 10px; border: 1px solid #ddd; background: white; border-radius: 6px; cursor: pointer; }
+  
+  .total-row { display: flex; justify-content: space-between; margin-top: 20px; font-size: 20px; font-weight: 800; }
 
-/* NAVIGATION BAR STYLE */
-.navbar {
-  background-color: #222;
-  padding: 12px 6%;
-  text-align: center;
-  border-bottom: 3px solid #ffb703;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 15px;
-}
+  label { font-weight: bold; display: block; margin-top: 15px; margin-bottom: 5px; }
+  input[type="text"], input[type="tel"] { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; }
+  
+  /* PAYMENT OPTIONS */
+  .payment-options { display: flex; gap: 15px; margin-top: 10px; }
+  .pay-box { flex: 1; border: 2px solid #ddd; padding: 15px; text-align: center; border-radius: 10px; cursor: pointer; font-weight: bold; }
+  .pay-box.active { border-color: #137333; background: #e7f7ed; color: #137333; }
 
-.navbar a {
-  color: #fff;
-  text-decoration: none;
-  font-weight: bold;
-  font-size: 14px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  transition: background 0.3s;
-}
+  .upi-btn { display: block; width: 100%; background: #00baf2; color: white; text-align: center; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: bold; margin-top: 15px; }
 
-.navbar a:hover {
-  background-color: #ffb703;
-  color: #111;
-}
+  .main-btn { width: 100%; margin-top: 20px; padding: 15px; border: 0; border-radius: 30px; background: #ffb703; color: #111; font-weight: 800; cursor: pointer; font-size: 16px; }
+  .main-btn:disabled { background: #ddd; cursor: not-allowed; }
 
-.hero{
-  padding:75px 7%;
-  text-align:center;
-  background:linear-gradient(135deg,#111,#292929);
-  color:white;
-}
-
-.hero h1{
-  font-size:clamp(40px,8vw,75px);
-  line-height:1.05;
-}
-
-.hero h1 span{
-  color:#ffb703;
-}
-
-.hero p{
-  max-width:600px;
-  margin:20px auto;
-  color:#ddd;
-  line-height:1.6;
-}
-
-.hero button{
-  border:0;
-  padding:14px 25px;
-  background:#ffb703;
-  border-radius:30px;
-  font-weight:700;
-  cursor:pointer;
-}
-
-.container{
-  width:88%;
-  max-width:1100px;
-  margin:45px auto;
-}
-
-.heading{
-  margin-bottom:25px;
-}
-
-.heading h2{
-  font-size:32px;
-}
-
-.heading p{
-  color:#777;
-  margin-top:7px;
-}
-
-.menu{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
-  gap:20px;
-}
-
-.card{
-  overflow:hidden;
-  background:white;
-  border-radius:20px;
-  box-shadow:0 8px 25px rgba(0,0,0,.07);
-}
-
-.product-image{
-  height:170px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:70px;
-  background:linear-gradient(135deg,#ffb703,#fb8500);
-}
-
-.product-image img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-
-.card-content{
-  padding:20px;
-}
-
-.card-content p{
-  color:#777;
-  margin:8px 0 18px;
-  font-size:14px;
-}
-
-.price-row{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-
-.price{
-  font-size:20px;
-  font-weight:800;
-}
-
-.add-btn{
-  border:0;
-  background:#111;
-  color:white;
-  padding:10px 17px;
-  border-radius:25px;
-  cursor:pointer;
-}
-
-.box{
-  background:white;
-  margin-top:35px;
-  padding:25px;
-  border-radius:20px;
-  box-shadow:0 8px 25px rgba(0,0,0,.06);
-}
-
-.cart-item{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:13px 0;
-  border-bottom:1px solid #eee;
-}
-
-.quantity button{
-  padding:5px 10px;
-  border:1px solid #ddd;
-  background:white;
-  border-radius:6px;
-  cursor:pointer;
-}
-
-.total{
-  display:flex;
-  justify-content:space-between;
-  margin-top:20px;
-  font-size:21px;
-  font-weight:800;
-}
-
-.main-btn{
-  width:100%;
-  margin-top:20px;
-  padding:15px;
-  border:0;
-  border-radius:30px;
-  background:#ffb703;
-  color:#111;
-  font-weight:800;
-  cursor:pointer;
-}
-
-.booking{
-  display:none;
-}
-
-.booking input{
-  width:100%;
-  padding:14px;
-  margin:8px 0 15px;
-  border:1px solid #ddd;
-  border-radius:10px;
-  outline:none;
-}
-
-.confirm-btn{
-  width:100%;
-  padding:15px;
-  border:0;
-  border-radius:30px;
-  background:#111;
-  color:white;
-  font-weight:800;
-  cursor:pointer;
-}
-
-.success{
-  display:none;
-  margin-top:20px;
-  padding:20px;
-  border-radius:15px;
-  background:#f2f2f2;
-  line-height:1.8;
-}
-
-.error{
-  display:none;
-  margin-top:20px;
-  padding:15px;
-  border-radius:12px;
-  background:#ffe5e5;
-  color:#b00020;
-}
-
-.loading{
-  text-align:center;
-  padding:50px;
-  color:#777;
-}
-
-.empty{
-  text-align:center;
-  padding:50px;
-  background:white;
-  border-radius:20px;
-  color:#777;
-}
-
-footer{
-  margin-top:60px;
-  padding:30px;
-  text-align:center;
-  background:#111;
-  color:white;
-}
-
-@media(max-width:600px){
-
-.container{
-  width:92%;
-}
-
-.hero{
-  padding:60px 20px;
-}
-
-.navbar {
-  flex-direction: column;
-  gap: 10px;
-}
-
-}
-
+  #msgBox { margin-top: 20px; padding: 15px; border-radius: 10px; display: none; line-height: 1.6; }
 </style>
 </head>
-
 <body>
 
 <header>
-
-<div class="logo">
-Fest<span>Cart</span>
-</div>
-
-<button class="cart-btn" onclick="goToCart()">
-🛒 Cart (<span id="cartCount">0</span>)
-</button>
-
+    <div class="logo" onclick="location.reload()">Fest<span>Cart</span></div>
+    <button class="cart-btn" onclick="document.getElementById('cartSection').scrollIntoView({behavior:'smooth'})">🛒 <span id="cartCount">0</span></button>
 </header>
 
-<!-- NAVIGATION MENU ADDED HERE -->
 <nav class="navbar">
     <a href="index.html">🏠 Home / Menu</a>
     <a href="admin.html">⚙️ Admin Dashboard</a>
     <a href="COUNTER.HTML">🏪 Counter Owner</a>
     <a href="track.html">📍 Track Order</a>
 </nav>
-<!-- NAVIGATION MENU END -->
-
 
 <section class="hero">
-
-<h1 id="storeNameHero">
-Pre-Book.<br>
-<span>Skip The Queue.</span>
-</h1>
-
-<p id="storeDescription">
-Order your favourite products in advance and collect them
-directly from the counter at the fest.
-</p>
-
-<button onclick="goToMenu()">
-Explore Menu
-</button>
-
+    <h1>Pre-Book.<br><span>Skip The Queue.</span></h1>
+    <p>Select a stall, order your food in advance, and pay seamlessly. Pick it up when it's ready!</p>
 </section>
-
 
 <main class="container">
 
+    <!-- STALLS SECTION -->
+    <div id="stallsSection">
+        <h2 class="section-title">🏪 Select a Stall</h2>
+        <div class="store-grid" id="stallsContainer">
+            <p style="color:#777;">Loading stalls...</p>
+        </div>
+    </div>
 
-<section id="menu">
+    <!-- MENU SECTION (Hidden by default) -->
+    <div id="menuSection" style="display: none; margin-top: 40px;">
+        <button onclick="goBackToStalls()" style="margin-bottom: 15px; background: #111; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;">← Back to Stalls</button>
+        <h2 class="section-title" id="selectedStoreName">Menu</h2>
+        <div class="menu-grid" id="menuContainer">
+            <p style="color:#777;">Loading menu...</p>
+        </div>
+    </div>
 
-<div class="heading">
+    <!-- CART SECTION -->
+    <div class="box" id="cartSection" style="display: none;">
+        <h2>🛒 Your Pre-Booking</h2>
+        <div id="cartItems"><p style="color:#777;margin-top:15px;">Your cart is empty.</p></div>
+        <div class="total-row"><span>Total</span><span>₹<span id="cartTotal">0</span></span></div>
+        <button class="main-btn" onclick="document.getElementById('checkoutSection').style.display='block'; this.scrollIntoView();">Checkout Now</button>
+    </div>
 
-<h2 id="menuTitle">
-🥤 Today's Menu
-</h2>
+    <!-- CHECKOUT SECTION -->
+    <div class="box" id="checkoutSection" style="display: none;">
+        <h2>🎟️ Finalize Order</h2>
+        
+        <label>Your Name</label>
+        <input type="text" id="custName" placeholder="Enter your name">
 
-<p id="menuSubtitle">
-Freshly prepared for your fest
-</p>
+        <label>Mobile Number</label>
+        <input type="tel" id="custPhone" placeholder="Enter mobile number">
 
-</div>
+        <label>Payment Method</label>
+        <div class="payment-options">
+            <div class="pay-box active" id="payCash" onclick="selectPayment('cash')">💵 Pay at Counter</div>
+            <div class="pay-box" id="payOnline" onclick="selectPayment('online')">📱 Pay Online (UPI)</div>
+        </div>
 
+        <div id="onlinePaymentDiv" style="display:none; margin-top:20px; padding:15px; border:1px dashed #00baf2; border-radius:10px; background:#f0fbff;">
+            <p style="font-size:14px; color:#555;">Click the button below to pay via UPI app. After payment, enter the 12-digit UTR/Ref number below.</p>
+            <a href="#" id="upiLinkButton" class="upi-btn" target="_blank">Pay ₹<span id="upiAmountText">0</span> Now</a>
+            
+            <label style="margin-top:15px;">Transaction ID / UTR Number *</label>
+            <input type="text" id="custTxnId" placeholder="Enter 12-digit UTR No.">
+        </div>
 
-<div
-class="menu"
-id="productList"
->
-
-<div class="loading">
-Loading menu...
-</div>
-
-</div>
-
-</section>
-
-
-
-<section class="box" id="cartBox">
-
-<h2>
-🛒 Your Pre-Booking
-</h2>
-
-
-<div id="cartItems">
-
-<p style="color:#777;margin-top:15px;">
-Your cart is empty.
-</p>
-
-</div>
-
-
-<div class="total">
-
-<span>
-Total
-</span>
-
-<span>
-₹<span id="total">0</span>
-</span>
-
-</div>
-
-
-<button
-class="main-btn"
-onclick="showBooking()"
->
-Continue to Pre-Book
-</button>
-
-</section>
-
-
-
-<section
-class="box booking"
-id="booking"
->
-
-<h2>
-🎟️ Confirm Your Pre-Booking
-</h2>
-
-<br>
-
-
-<label>
-Your Name
-</label>
-
-<input
-id="name"
-type="text"
-placeholder="Enter your name"
-/>
-
-
-
-<label>
-Mobile Number
-</label>
-
-<input
-id="phone"
-type="tel"
-placeholder="Enter mobile number"
-/>
-
-
-
-<button
-class="confirm-btn"
-onclick="confirmBooking()"
->
-Confirm Pre-Booking
-</button>
-
-
-
-<div
-class="error"
-id="errorMessage"
-></div>
-
-
-
-<div
-class="success"
-id="confirmation"
-></div>
-
-</section>
+        <button class="main-btn" id="confirmBtn" style="background:#111; color:white; margin-top:25px;" onclick="placeOrder()">Confirm Order</button>
+        <div id="msgBox"></div>
+    </div>
 
 </main>
 
-
-
-<footer>
-
-<h3 id="footerStoreName">
-FestCart
-</h3>
-
-<p>
-Scan. Pre-Book. Pick Up.
-</p>
-
-</footer>
-
-
-
 <script>
-
-
 /* ==============================
    SUPABASE CONFIG
 ============================== */
-
-
-const SUPABASE_URL =
-"https://pzdtpnvgdbomqmuyzhtv.supabase.co";
-
-
-const SUPABASE_PUBLISHABLE_KEY =
-"sb_publishable_DqbtaPNKSD_1ELESNwy54Q_ForkRGvn";
-
-
-const STORE_ID =
-"9e3cdd45-d74b-4b10-b87c-f2e31d578b2f";
-
-
-const supabaseClient =
-window.supabase.createClient(
-SUPABASE_URL,
-SUPABASE_PUBLISHABLE_KEY
-);
-
-
-
-/* ==============================
-   CART
-============================== */
-
+const SUPABASE_URL = "https://pzdtpnvgdbomqmuyzhtv.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_DqbtaPNKSD_1ELESNwy54Q_ForkRGvn";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
 let cart = [];
-
-
-
-/* ==============================
-   LOAD STORE
-============================== */
-
-
-async function loadStore(){
-
-const {data,error} =
-await supabaseClient
-.from("stores")
-.select("*")
-.eq("id",STORE_ID)
-.single();
-
-
-if(error){
-
-console.error(
-"Store Error:",
-error
-);
-
-return;
-
-}
-
-
-if(!data){
-
-return;
-
-}
-
-
-document.title =
-data.store_name +
-" | Pre-Book";
-
-
-document
-.getElementById(
-"footerStoreName"
-)
-.innerText =
-data.store_name;
-
-
-document
-.getElementById(
-"storeNameHero"
-)
-.innerHTML = `
-
-${data.store_name}
-
-<br>
-
-<span>
-Pre-Book. Skip The Queue.
-</span>
-
-`;
-
-
-}
-
-
+let currentStoreId = null;
+let currentStoreName = "";
+let selectedPayment = "cash"; // default
 
 /* ==============================
-   LOAD PRODUCTS
+   LOAD STALLS
 ============================== */
+async function loadStalls() {
+    const { data, error } = await supabaseClient.from('stores').select('*');
+    const container = document.getElementById("stallsContainer");
+    
+    if (error) { container.innerHTML = "Failed to load stalls."; return; }
+    if (data.length === 0) { container.innerHTML = "No stalls available right now."; return; }
 
-
-async function loadProducts(){
-
-const productList =
-document.getElementById(
-"productList"
-);
-
-
-productList.innerHTML = `
-
-<div class="loading">
-Loading menu...
-</div>
-
-`;
-
-
-const {data,error} =
-await supabaseClient
-.from("products")
-.select("*")
-.eq(
-"store_id",
-STORE_ID
-)
-.eq(
-"is_available",
-true
-)
-.order(
-"created_at",
-{
-ascending:true
+    container.innerHTML = "";
+    data.forEach(store => {
+        let banner = store.banner_url || "https://images.unsplash.com/photo-1555939594-58d7cb561ad1?auto=format&fit=crop&w=500&q=60";
+        container.innerHTML += `
+            <div class="store-card" onclick="openStore('${store.id}', '${store.store_name}')">
+                <div class="store-banner" style="background-image: url('${banner}');"></div>
+                <div class="store-info">
+                    <h3>${store.store_name}</h3>
+                    <p style="color:#777; font-size:14px; margin-top:5px;">Tap to view menu</p>
+                </div>
+            </div>
+        `;
+    });
 }
-);
-
-
-if(error){
-
-console.error(
-"Product Error:",
-error
-);
-
-
-productList.innerHTML = `
-
-<div class="empty">
-
-❌ Unable to load menu.
-
-<br><br>
-
-${error.message}
-
-</div>
-
-`;
-
-return;
-
-}
-
-
-
-if(!data || data.length===0){
-
-productList.innerHTML = `
-
-<div class="empty">
-
-🍽️ Menu will be available soon.
-
-</div>
-
-`;
-
-return;
-
-}
-
-
-
-productList.innerHTML = "";
-
-
-data.forEach(product=>{
-
-
-let imageHTML = "🍔";
-
-
-if(product.image_url){
-
-imageHTML = `
-
-<img
-src="${product.image_url}"
-alt="${product.name}"
->
-
-`;
-
-}
-
-
-productList.innerHTML += `
-
-<div class="card">
-
-<div class="product-image">
-
-${imageHTML}
-
-</div>
-
-
-<div class="card-content">
-
-<h3>
-${product.name}
-</h3>
-
-
-<p>
-${product.description || ""}
-</p>
-
-
-<div class="price-row">
-
-<span class="price">
-
-₹${product.price}
-
-</span>
-
-
-<button
-class="add-btn"
-onclick='addToCart(
-${JSON.stringify(product.name)},
-${Number(product.price)}
-)'
->
-
-Add +
-
-</button>
-
-</div>
-
-</div>
-
-</div>
-
-`;
-
-});
-
-}
-
-
 
 /* ==============================
-   ADD TO CART
+   OPEN STORE & LOAD MENU
 ============================== */
+async function openStore(storeId, storeName) {
+    currentStoreId = storeId;
+    currentStoreName = storeName;
+    
+    document.getElementById("stallsSection").style.display = "none";
+    document.getElementById("menuSection").style.display = "block";
+    document.getElementById("selectedStoreName").innerText = "🍔 " + storeName + " Menu";
+    
+    // Reset cart when changing stores
+    cart = []; updateCartUI();
 
+    const { data, error } = await supabaseClient.from('products').select('*').eq('store_id', storeId).order('created_at', { ascending: true });
+    const container = document.getElementById("menuContainer");
+    
+    if (error) { container.innerHTML = "Failed to load menu."; return; }
+    if (data.length === 0) { container.innerHTML = "Menu is empty for this stall."; return; }
 
-function addToCart(
-name,
-price
-){
-
-const existing =
-cart.find(
-item =>
-item.name === name
-);
-
-
-if(existing){
-
-existing.quantity++;
-
-}else{
-
-cart.push({
-
-name:name,
-
-price:price,
-
-quantity:1
-
-});
-
+    container.innerHTML = "";
+    data.forEach(item => {
+        if(item.is_available) {
+            container.innerHTML += `
+                <div class="menu-card">
+                    <div>
+                        <h4>${item.name}</h4>
+                        <p style="font-weight:bold; color:#777;">₹${item.price}</p>
+                    </div>
+                    <button class="add-btn" onclick="addToCart('${item.name}', ${item.price})">Add +</button>
+                </div>
+            `;
+        } else {
+            container.innerHTML += `
+                <div class="menu-card" style="opacity:0.6;">
+                    <div>
+                        <h4>${item.name}</h4>
+                        <p style="font-weight:bold; color:#777;">₹${item.price}</p>
+                        <span class="out-of-stock">Out of Stock</span>
+                    </div>
+                </div>
+            `;
+        }
+    });
 }
 
-
-updateCart();
-
+function goBackToStalls() {
+    document.getElementById("menuSection").style.display = "none";
+    document.getElementById("cartSection").style.display = "none";
+    document.getElementById("checkoutSection").style.display = "none";
+    document.getElementById("stallsSection").style.display = "block";
+    cart = []; updateCartUI();
 }
-
-
 
 /* ==============================
-   QUANTITY
+   CART LOGIC
 ============================== */
-
-
-function changeQuantity(
-index,
-change
-){
-
-cart[index].quantity +=
-change;
-
-
-if(
-cart[index].quantity <= 0
-){
-
-cart.splice(
-index,
-1
-);
-
+function addToCart(name, price) {
+    let existing = cart.find(i => i.name === name);
+    if(existing) existing.qty++;
+    else cart.push({ name, price, qty: 1 });
+    
+    document.getElementById("cartSection").style.display = "block";
+    updateCartUI();
 }
 
-
-updateCart();
-
+function changeQty(index, amt) {
+    cart[index].qty += amt;
+    if(cart[index].qty <= 0) cart.splice(index, 1);
+    updateCartUI();
+    if(cart.length === 0) {
+        document.getElementById("cartSection").style.display = "none";
+        document.getElementById("checkoutSection").style.display = "none";
+    }
 }
 
+function updateCartUI() {
+    let html = "", total = 0, count = 0;
+    cart.forEach((item, i) => {
+        total += (item.price * item.qty);
+        count += item.qty;
+        html += `
+            <div class="cart-item">
+                <div><strong>${item.name}</strong><br><small>₹${item.price} × ${item.qty}</small></div>
+                <div>
+                    <button class="qty-btn" onclick="changeQty(${i}, -1)">-</button>
+                    <span style="margin:0 10px;">${item.qty}</span>
+                    <button class="qty-btn" onclick="changeQty(${i}, 1)">+</button>
+                </div>
+            </div>
+        `;
+    });
+    
+    document.getElementById("cartItems").innerHTML = cart.length ? html : "<p>Cart is empty.</p>";
+    document.getElementById("cartTotal").innerText = total;
+    document.getElementById("cartCount").innerText = count;
+    document.getElementById("upiAmountText").innerText = total;
 
+    // Generate UPI URL (Dummy UPI ID for now, replace festcart@ybl with real one later)
+    // format: upi://pay?pa=UPI_ID&pn=NAME&am=AMOUNT
+    const upiUrl = `upi://pay?pa=festcart@ybl&pn=${encodeURIComponent(currentStoreName)}&am=${total}&cu=INR`;
+    document.getElementById("upiLinkButton").href = upiUrl;
+}
 
 /* ==============================
-   UPDATE CART
+   PAYMENT SELECTION
 ============================== */
-
-
-function updateCart(){
-
-let count = 0;
-
-let total = 0;
-
-
-cart.forEach(item=>{
-
-count +=
-item.quantity;
-
-
-total +=
-item.price *
-item.quantity;
-
-});
-
-
-document
-.getElementById(
-"cartCount"
-)
-.innerText =
-count;
-
-
-document
-.getElementById(
-"total"
-)
-.innerText =
-total;
-
-
-
-const cartItems =
-document.getElementById(
-"cartItems"
-);
-
-
-if(
-cart.length === 0
-){
-
-cartItems.innerHTML = `
-
-<p style="color:#777;margin-top:15px;">
-
-Your cart is empty.
-
-</p>
-
-`;
-
-return;
-
+function selectPayment(mode) {
+    selectedPayment = mode;
+    if(mode === 'cash') {
+        document.getElementById("payCash").classList.add("active");
+        document.getElementById("payOnline").classList.remove("active");
+        document.getElementById("onlinePaymentDiv").style.display = "none";
+    } else {
+        document.getElementById("payOnline").classList.add("active");
+        document.getElementById("payCash").classList.remove("active");
+        document.getElementById("onlinePaymentDiv").style.display = "block";
+    }
 }
-
-
-cartItems.innerHTML = "";
-
-
-cart.forEach(
-(item,index)=>{
-
-
-cartItems.innerHTML += `
-
-<div class="cart-item">
-
-<div>
-
-<strong>
-${item.name}
-</strong>
-
-<br>
-
-<small>
-₹${item.price}
-×
-${item.quantity}
-</small>
-
-</div>
-
-
-<div class="quantity">
-
-<button
-onclick="changeQuantity(
-${index},
--1
-)"
->
-−
-</button>
-
-
-<span
-style="margin:0 8px;"
->
-${item.quantity}
-</span>
-
-
-<button
-onclick="changeQuantity(
-${index},
-1
-)"
->
-+
-</button>
-
-</div>
-
-</div>
-
-`;
-
-});
-
-}
-
-
 
 /* ==============================
-   NAVIGATION
+   PLACE ORDER
 ============================== */
+async function placeOrder() {
+    const name = document.getElementById("custName").value.trim();
+    const phone = document.getElementById("custPhone").value.trim();
+    const txnId = document.getElementById("custTxnId").value.trim();
+    const msg = document.getElementById("msgBox");
+    const btn = document.getElementById("confirmBtn");
 
+    msg.style.display = "none";
 
-function goToMenu(){
+    if(!name || !phone) {
+        msg.innerHTML = "❌ Please enter Name and Phone number.";
+        msg.style.background = "#ffe5e5"; msg.style.color = "#b00020"; msg.style.display = "block"; return;
+    }
 
-document
-.getElementById(
-"menu"
-)
-.scrollIntoView({
+    if(selectedPayment === 'online' && txnId.length < 6) {
+        msg.innerHTML = "❌ Please enter a valid Transaction ID/UTR.";
+        msg.style.background = "#ffe5e5"; msg.style.color = "#b00020"; msg.style.display = "block"; return;
+    }
 
-behavior:"smooth"
+    btn.disabled = true; btn.innerText = "Processing...";
+    
+    let total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+    let orderId = "FC-" + Math.floor(1000 + Math.random() * 9000); // Generate FC-1234 format
 
-});
+    // items stringification for database
+    let itemsJSON = JSON.stringify(cart.map(i => ({ name: i.name, price: i.price, quantity: i.qty })));
 
+    const { error } = await supabaseClient.from('bookings').insert([{
+        booking_id: orderId,
+        store_id: currentStoreId,
+        customer_name: name,
+        phone: phone,
+        items: itemsJSON,
+        total_amount: total,
+        status: "new",
+        payment_mode: selectedPayment,
+        transaction_id: selectedPayment === 'online' ? txnId : "N/A"
+    }]);
+
+    if(error) {
+        msg.innerHTML = "❌ Order Failed: " + error.message;
+        msg.style.background = "#ffe5e5"; msg.style.color = "#b00020"; msg.style.display = "block";
+        btn.disabled = false; btn.innerText = "Confirm Order";
+    } else {
+        msg.innerHTML = `
+            <h2>🎉 Booking Confirmed!</h2>
+            <br><p><strong>Order ID:</strong> <span style="font-size:22px; color:#1456a0;">${orderId}</span></p>
+            <p><strong>Stall:</strong> ${currentStoreName}</p>
+            <p><strong>Payment:</strong> ${selectedPayment === 'online' ? 'Online Verification Pending' : 'Pay at Counter'}</p>
+            <br>
+            <p>Take a screenshot of this Order ID and track it from the <b>Track Order</b> tab!</p>
+        `;
+        msg.style.background = "#e7f7ed"; msg.style.color = "#137333"; msg.style.display = "block";
+        
+        // Hide forms
+        document.getElementById("stallsSection").style.display = "none";
+        document.getElementById("menuSection").style.display = "none";
+        document.getElementById("cartSection").style.display = "none";
+        document.getElementById("checkoutSection").style.display = "none";
+    }
 }
-
-
-
-function goToCart(){
-
-document
-.getElementById(
-"cartBox"
-)
-.scrollIntoView({
-
-behavior:"smooth"
-
-});
-
-}
-
-
 
 /* ==============================
-   BOOKING
+   START
 ============================== */
-
-
-function showBooking(){
-
-if(
-cart.length === 0
-){
-
-alert(
-"Please add at least one item to your cart."
-);
-
-return;
-
-}
-
-
-const booking =
-document.getElementById(
-"booking"
-);
-
-
-booking.style.display =
-"block";
-
-
-booking.scrollIntoView({
-
-behavior:"smooth"
-
-});
-
-}
-
-
-
-/* ==============================
-   CONFIRM BOOKING
-============================== */
-
-
-async function confirmBooking(){
-
-
-const name =
-document
-.getElementById(
-"name"
-)
-.value
-.trim();
-
-
-
-const phone =
-document
-.getElementById(
-"phone"
-)
-.value
-.trim();
-
-
-
-const errorBox =
-document
-.getElementById(
-"errorMessage"
-);
-
-
-
-const successBox =
-document
-.getElementById(
-"confirmation"
-);
-
-
-
-errorBox.style.display =
-"none";
-
-
-successBox.style.display =
-"none";
-
-
-
-if(
-!name ||
-!phone
-){
-
-errorBox.innerText =
-"Please enter your name and mobile number.";
-
-
-errorBox.style.display =
-"block";
-
-
-return;
-
-}
-
-
-
-if(
-cart.length === 0
-){
-
-errorBox.innerText =
-"Your cart is empty.";
-
-
-errorBox.style.display =
-"block";
-
-
-return;
-
-}
-
-
-
-const total =
-cart.reduce(
-
-(sum,item)=>
-
-sum +
-item.price *
-item.quantity,
-
-0
-
-);
-
-
-
-const bookingID =
-"FC" +
-Date.now()
-.toString()
-.slice(-8);
-
-
-
-const items =
-cart.map(
-item=>({
-
-name:
-item.name,
-
-price:
-item.price,
-
-quantity:
-item.quantity
-
-})
-);
-
-
-
-const button =
-document.querySelector(
-".confirm-btn"
-);
-
-
-
-button.disabled =
-true;
-
-
-button.innerText =
-"Saving Booking...";
-
-
-
-try{
-
-
-const {error} =
-await supabaseClient
-.from("bookings")
-.insert([{
-
-store_id:
-STORE_ID,
-
-booking_id:
-bookingID,
-
-customer_name:
-name,
-
-phone:
-phone,
-
-pickup_time:
-"N/A",
-
-items:
-items,
-
-total_amount:
-total,
-
-status:
-"new"
-
-}]);
-
-
-
-if(error){
-
-throw error;
-
-}
-
-
-
-successBox.innerHTML = `
-
-<h2>
-🎉 Booking Confirmed!
-</h2>
-
-<p>
-
-<strong>
-Booking ID:
-</strong>
-
-${bookingID}
-
-</p>
-
-
-<p>
-
-<strong>
-Name:
-</strong>
-
-${name}
-
-</p>
-
-
-<p>
-
-<strong>
-Total:
-</strong>
-
-₹${total}
-
-</p>
-
-
-<br>
-
-
-<p>
-
-Show this Booking ID at the
-counter to collect your order.
-
-</p>
-
-`;
-
-
-
-successBox.style.display =
-"block";
-
-
-
-cart = [];
-
-
-updateCart();
-
-
-
-document
-.getElementById(
-"name"
-)
-.value = "";
-
-
-document
-.getElementById(
-"phone"
-)
-.value = "";
-
-
-
-}catch(error){
-
-
-console.error(
-"Booking Error:",
-error
-);
-
-
-
-errorBox.innerText =
-"Booking failed. Please try again.";
-
-
-errorBox.style.display =
-"block";
-
-
-}
-
-
-
-button.disabled =
-false;
-
-
-button.innerText =
-"Confirm Pre-Booking";
-
-}
-
-
-
-/* ==============================
-   START APP
-============================== */
-
-
-loadStore();
-
-loadProducts();
-
-updateCart();
-
-
+loadStalls();
 </script>
 
 </body>
