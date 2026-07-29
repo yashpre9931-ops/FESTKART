@@ -5,13 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Dashboard | FestCart</title>
 
-<!-- Supabase SDK -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
   body { background: #f7f7f8; color: #111; }
   
+  header { position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; padding: 16px 6%; background: #111; color: white; }
+  .logo { font-size: 25px; font-weight: 800; cursor: pointer; text-decoration: none; color: white;}
+  .logo span { color: #ffb703; }
+
   .navbar { background-color: #222; padding: 12px 6%; text-align: center; border-bottom: 3px solid #ffb703; display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
   .navbar a { color: #fff; text-decoration: none; font-weight: bold; font-size: 14px; padding: 5px 10px; border-radius: 5px; transition: background 0.3s; }
   .navbar a:hover { background-color: #ffb703; color: #111; }
@@ -28,31 +31,20 @@
   .logout-btn { background: #d93025; margin-top: 15px; width: 100%; padding: 15px; border: 0; border-radius: 30px; color: white; font-weight: bold; cursor: pointer; }
   .logout-btn:hover { background: #b3261e; }
 
-  #counterMessage, #loginError { margin-top: 20px; padding: 15px; border-radius: 10px; display: none; line-height: 1.6; }
+  #counterMessage { margin-top: 20px; padding: 15px; border-radius: 10px; display: none; line-height: 1.6; }
 </style>
 </head>
 <body>
 
+<header>
+    <a href="index.html" class="logo">Fest<span>Cart</span></a>
+</header>
+
 <nav class="navbar">
     <a href="index.html">🏠 Home / Menu</a>
-    <a href="admin.html">⚙️ Admin Dashboard</a>
-    <a href="COUNTER.HTML">🏪 Counter Owner</a>
+    <a href="login.html">🔐 Login Portal</a>
     <a href="track.html">📍 Track Order</a>
 </nav>
-
-<!-- 🔒 ADMIN LOGIN SECTION -->
-<div class="container" id="loginSection">
-    <h2>🔒 Admin Access</h2>
-    
-    <label>Admin Email</label>
-    <input type="email" id="adminEmail" placeholder="Enter Admin Email">
-
-    <label>Password</label>
-    <input type="password" id="adminPassword" placeholder="Enter Password">
-
-    <button class="btn-primary" onclick="loginAdmin()">Login to Dashboard</button>
-    <div id="loginError"></div>
-</div>
 
 <!-- ⚙️ ADMIN DASHBOARD SECTION -->
 <div class="container" id="dashboardSection" style="display: none;">
@@ -67,7 +59,6 @@
     <label>Owner Email (Login ID)</label>
     <input type="email" id="ownerEmail" placeholder="e.g. counter1@festcart.com">
 
-    <!-- NEW FIELD ADDED HERE -->
     <label>Set Owner Password</label>
     <input type="text" id="ownerPassword" placeholder="e.g. Counter@123 (Min 6 chars)">
 
@@ -79,115 +70,67 @@
 </div>
 
 <script>
-/* ==============================
-   SUPABASE CONFIG
-============================== */
 const SUPABASE_URL = "https://pzdtpnvgdbomqmuyzhtv.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_DqbtaPNKSD_1ELESNwy54Q_ForkRGvn";
-
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
 /* ==============================
-   CHECK IF ALREADY LOGGED IN
+   PROTECTED ROUTE (SECURITY)
 ============================== */
 async function checkAuthStatus() {
     const { data: { session } } = await supabaseClient.auth.getSession();
     
-    if (session) {
-        document.getElementById("loginSection").style.display = "none";
+    if (!session) {
+        // Agar login nahi hai, to wapas login page par fek do
+        window.location.href = "login.html";
+    } else {
         document.getElementById("dashboardSection").style.display = "block";
-    } else {
-        document.getElementById("loginSection").style.display = "block";
-        document.getElementById("dashboardSection").style.display = "none";
     }
 }
 
-/* ==============================
-   ADMIN LOGIN FUNCTION
-============================== */
-async function loginAdmin() {
-    const email = document.getElementById("adminEmail").value.trim();
-    const password = document.getElementById("adminPassword").value.trim();
-    const errorBox = document.getElementById("loginError");
-
-    errorBox.style.display = "none";
-
-    if(!email || !password) {
-        errorBox.innerText = "❌ Please enter email and password.";
-        errorBox.style.display = "block";
-        return;
-    }
-
-    errorBox.innerText = "⏳ Logging in...";
-    errorBox.style.background = "#e8f1ff"; errorBox.style.color = "#1456a0"; errorBox.style.display = "block";
-
-    const { data, error } = await supabaseClient.auth.signInWithPassword({ email: email, password: password });
-
-    if (error) {
-        errorBox.innerText = "❌ Login Failed: " + error.message;
-        errorBox.style.background = "#ffe5e5"; errorBox.style.color = "#b00020";
-    } else {
-        document.getElementById("adminEmail").value = "";
-        document.getElementById("adminPassword").value = "";
-        checkAuthStatus(); 
-    }
-}
-
-/* ==============================
-   ADMIN LOGOUT FUNCTION
-============================== */
 async function logoutAdmin() {
     await supabaseClient.auth.signOut();
-    checkAuthStatus(); 
+    window.location.href = "login.html"; 
 }
 
 /* ==============================
-   CREATE COUNTER FUNCTION
+   CREATE COUNTER 
 ============================== */
 async function createCounter(){
   const storeName = document.getElementById("storeName").value.trim();
   const ownerName = document.getElementById("ownerName").value.trim();
   const ownerEmail = document.getElementById("ownerEmail").value.trim();
-  const ownerPassword = document.getElementById("ownerPassword").value.trim(); // NEW
+  const ownerPassword = document.getElementById("ownerPassword").value.trim();
   const message = document.getElementById("counterMessage");
 
   message.style.display = "none";
 
   if(!storeName || !ownerName || !ownerEmail || !ownerPassword){
-    message.innerText = "❌ Please fill all details, including password.";
-    message.style.background = "#ffe5e5"; message.style.color = "#b00020"; message.style.display = "block";
-    return;
-  }
-
-  if(ownerPassword.length < 6) {
-    message.innerText = "❌ Password must be at least 6 characters long.";
-    message.style.background = "#ffe5e5"; message.style.color = "#b00020"; message.style.display = "block";
-    return;
+    message.innerText = "❌ Please fill all details.";
+    message.style.background = "#ffe5e5"; message.style.color = "#b00020"; message.style.display = "block"; return;
   }
 
   message.innerText = "⏳ Creating stall owner account and store...";
   message.style.background = "#e8f1ff"; message.style.color = "#1456a0"; message.style.display = "block";
 
   try{
-    // YAHAN HUM AB DATABASE LOGIC LIKHENGE (Next step me)
-    const { data, error } = await supabaseClient.functions.invoke("YOUR_FUNCTION_NAME", {
-          body: { store_name: storeName, owner_name: ownerName, owner_email: ownerEmail, owner_password: ownerPassword }
-    });
+    const { data: authData, error: authError } = await supabaseClient.auth.signUp({ email: ownerEmail, password: ownerPassword });
+    if (authError) throw authError;
 
-    if(error || (!data || !data.success)){
-      message.innerText = "❌ Creation failed: " + (error?.message || data?.error || "Unknown error");
-      message.style.background = "#ffe5e5"; message.style.color = "#b00020"; message.style.display = "block";
-      return;
-    }
+    const ownerId = authData.user.id;
 
-    message.innerHTML = `✅ <b>Counter Created!</b><br>🏪 ${data.store.store_name}<br>👤 ${data.store.owner_name}`;
+    const { data: storeData, error: storeError } = await supabaseClient.from('stores').insert([
+        { store_name: storeName, owner_name: ownerName, owner_id: ownerId }
+    ]);
+    if (storeError) throw storeError;
+
+    message.innerHTML = `✅ <b>Counter Created Successfully!</b><br><br>🏪 Store: ${storeName}<br>👤 Owner: ${ownerName}<br>📧 Login ID: ${ownerEmail}<br>🔑 Password: ${ownerPassword}<br><br><i>⚠️ Security Note: To create another counter, please click Logout and log in as Admin again.</i>`;
     message.style.background = "#e7f7ed"; message.style.color = "#137333"; message.style.display = "block";
 
-    // Clear Form
-    document.getElementById("storeName").value = ""; 
-    document.getElementById("ownerName").value = ""; 
-    document.getElementById("ownerEmail").value = "";
-    document.getElementById("ownerPassword").value = "";
+    document.getElementById("storeName").value = ""; document.getElementById("ownerName").value = ""; 
+    document.getElementById("ownerEmail").value = ""; document.getElementById("ownerPassword").value = "";
+
+    await supabaseClient.auth.signOut();
   } catch(error){
     message.innerText = "❌ Error: " + error.message;
     message.style.background = "#ffe5e5"; message.style.color = "#b00020"; message.style.display = "block";
