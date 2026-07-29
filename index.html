@@ -75,10 +75,10 @@
     <button class="cart-btn" onclick="document.getElementById('cartSection').scrollIntoView({behavior:'smooth'})">🛒 <span id="cartCount">0</span></button>
 </header>
 
+<!-- 🚨 NAYA NAVIGATION BAR 🚨 -->
 <nav class="navbar">
     <a href="index.html">🏠 Home / Menu</a>
-    <a href="admin.html">⚙️ Admin Dashboard</a>
-    <a href="COUNTER.HTML">🏪 Counter Owner</a>
+    <a href="LOGIN.HTML">🔐 Login Portal</a>
     <a href="track.html">📍 Track Order</a>
 </nav>
 
@@ -161,7 +161,7 @@ let selectedPayment = "cash"; // default
    LOAD STALLS
 ============================== */
 async function loadStalls() {
-    const { data, error } = await supabaseClient.from('stores').select('*');
+    const { data, error } = await supabaseClient.from('stores').select('*').limit(50);
     const container = document.getElementById("stallsContainer");
     
     if (error) { container.innerHTML = "Failed to load stalls."; return; }
@@ -280,8 +280,7 @@ function updateCartUI() {
     document.getElementById("cartCount").innerText = count;
     document.getElementById("upiAmountText").innerText = total;
 
-    // Generate UPI URL (Dummy UPI ID for now, replace festcart@ybl with real one later)
-    // format: upi://pay?pa=UPI_ID&pn=NAME&am=AMOUNT
+    // Generate UPI URL
     const upiUrl = `upi://pay?pa=festcart@ybl&pn=${encodeURIComponent(currentStoreName)}&am=${total}&cu=INR`;
     document.getElementById("upiLinkButton").href = upiUrl;
 }
@@ -327,9 +326,8 @@ async function placeOrder() {
     btn.disabled = true; btn.innerText = "Processing...";
     
     let total = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-    let orderId = "FC-" + Math.floor(1000 + Math.random() * 9000); // Generate FC-1234 format
+    let orderId = "FC-" + Math.floor(1000 + Math.random() * 9000); 
 
-    // items stringification for database
     let itemsJSON = JSON.stringify(cart.map(i => ({ name: i.name, price: i.price, quantity: i.qty })));
 
     const { error } = await supabaseClient.from('bookings').insert([{
@@ -359,7 +357,6 @@ async function placeOrder() {
         `;
         msg.style.background = "#e7f7ed"; msg.style.color = "#137333"; msg.style.display = "block";
         
-        // Hide forms
         document.getElementById("stallsSection").style.display = "none";
         document.getElementById("menuSection").style.display = "none";
         document.getElementById("cartSection").style.display = "none";
