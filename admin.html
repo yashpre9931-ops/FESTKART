@@ -12,28 +12,26 @@
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
   body { background: #f7f7f8; color: #111; }
   
-  /* Navigation Bar */
   .navbar { background-color: #222; padding: 12px 6%; text-align: center; border-bottom: 3px solid #ffb703; display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
   .navbar a { color: #fff; text-decoration: none; font-weight: bold; font-size: 14px; padding: 5px 10px; border-radius: 5px; transition: background 0.3s; }
   .navbar a:hover { background-color: #ffb703; color: #111; }
 
-  /* Main Container */
   .container { max-width: 600px; margin: 50px auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.06); width: 90%; }
   .container h2 { margin-bottom: 20px; text-align: center; }
   
-  /* Inputs & Buttons */
   label { font-weight: bold; display: block; margin-top: 15px; margin-bottom: 5px; }
   input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; }
   button { width: 100%; margin-top: 25px; padding: 15px; border: 0; border-radius: 30px; background: #111; color: white; font-weight: 800; cursor: pointer; font-size: 16px; transition: 0.3s; }
   button:hover { background: #ffb703; color: #111; }
   
-  /* Message Box */
-  #counterMessage { margin-top: 20px; padding: 15px; border-radius: 10px; display: none; line-height: 1.6; }
+  .logout-btn { background: #d93025; margin-top: 15px; }
+  .logout-btn:hover { background: #b3261e; color: white; }
+
+  #counterMessage, #loginError { margin-top: 20px; padding: 15px; border-radius: 10px; display: none; line-height: 1.6; }
 </style>
 </head>
 <body>
 
-<!-- NAVIGATION MENU -->
 <nav class="navbar">
     <a href="index.html">🏠 Home / Menu</a>
     <a href="admin.html">⚙️ Admin Dashboard</a>
@@ -41,8 +39,22 @@
     <a href="track.html">📍 Track Order</a>
 </nav>
 
-<!-- ADMIN DASHBOARD FORM -->
-<div class="container">
+<!-- 🔒 ADMIN LOGIN SECTION -->
+<div class="container" id="loginSection">
+    <h2>🔒 Admin Login</h2>
+    
+    <label>Admin Email</label>
+    <input type="email" id="adminEmail" placeholder="Enter Admin Email">
+
+    <label>Password</label>
+    <input type="password" id="adminPassword" placeholder="Enter Password">
+
+    <button onclick="loginAdmin()">Login to Dashboard</button>
+    <div id="loginError"></div>
+</div>
+
+<!-- ⚙️ ADMIN DASHBOARD SECTION (Hidden by default) -->
+<div class="container" id="dashboardSection" style="display: none;">
     <h2>⚙️ Create New Counter</h2>
 
     <label>Store Name</label>
@@ -55,11 +67,12 @@
     <input type="email" id="ownerEmail" placeholder="e.g. yash@example.com">
 
     <button onclick="createCounter()">Create Counter</button>
-
     <div id="counterMessage"></div>
+
+    <hr style="margin: 30px 0; border: 1px solid #eee;">
+    <button class="logout-btn" onclick="logoutAdmin()">Logout</button>
 </div>
 
-<!-- JAVASCRIPT LOGIC START -->
 <script>
 /* ==============================
    SUPABASE CONFIG
@@ -67,120 +80,112 @@
 const SUPABASE_URL = "https://pzdtpnvgdbomqmuyzhtv.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_DqbtaPNKSD_1ELESNwy54Q_ForkRGvn";
 
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_PUBLISHABLE_KEY
-);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+/* ==============================
+   CHECK IF ALREADY LOGGED IN
+============================== */
+async function checkAuthStatus() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    
+    if (session) {
+        // User logged in hai, Dashboard dikhao
+        document.getElementById("loginSection").style.display = "none";
+        document.getElementById("dashboardSection").style.display = "block";
+    } else {
+        // Logged out hai, Login form dikhao
+        document.getElementById("loginSection").style.display = "block";
+        document.getElementById("dashboardSection").style.display = "none";
+    }
+}
+
+/* ==============================
+   ADMIN LOGIN FUNCTION
+============================== */
+async function loginAdmin() {
+    const email = document.getElementById("adminEmail").value.trim();
+    const password = document.getElementById("adminPassword").value.trim();
+    const errorBox = document.getElementById("loginError");
+
+    errorBox.style.display = "none";
+
+    if(!email || !password) {
+        errorBox.innerText = "❌ Please enter email and password.";
+        errorBox.style.background = "#ffe5e5";
+        errorBox.style.color = "#b00020";
+        errorBox.style.display = "block";
+        return;
+    }
+
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+        email: email,
+        password: password,
+    });
+
+    if (error) {
+        errorBox.innerText = "❌ Login Failed: " + error.message;
+        errorBox.style.background = "#ffe5e5";
+        errorBox.style.color = "#b00020";
+        errorBox.style.display = "block";
+    } else {
+        // Login success
+        document.getElementById("adminEmail").value = "";
+        document.getElementById("adminPassword").value = "";
+        checkAuthStatus(); // Reload UI
+    }
+}
+
+/* ==============================
+   ADMIN LOGOUT FUNCTION
+============================== */
+async function logoutAdmin() {
+    await supabaseClient.auth.signOut();
+    checkAuthStatus(); // Reload UI
+}
 
 /* ==============================
    CREATE COUNTER FUNCTION
 ============================== */
 async function createCounter(){
-
   const storeName = document.getElementById("storeName").value.trim();
   const ownerName = document.getElementById("ownerName").value.trim();
   const ownerEmail = document.getElementById("ownerEmail").value.trim();
   const message = document.getElementById("counterMessage");
 
-  // Reset message box
   message.style.display = "none";
 
-  // Validation
-  if(!storeName){
-    message.innerText = "❌ Please enter Counter Name.";
-    message.style.background = "#ffe5e5";
-    message.style.color = "#b00020";
-    message.style.display = "block";
+  if(!storeName || !ownerName || !ownerEmail){
+    message.innerText = "❌ Please fill all details.";
+    message.style.background = "#ffe5e5"; message.style.color = "#b00020"; message.style.display = "block";
     return;
   }
 
-  if(!ownerName){
-    message.innerText = "❌ Please enter Owner Name.";
-    message.style.background = "#ffe5e5";
-    message.style.color = "#b00020";
-    message.style.display = "block";
-    return;
-  }
-
-  if(!ownerEmail){
-    message.innerText = "❌ Please enter Owner Email.";
-    message.style.background = "#ffe5e5";
-    message.style.color = "#b00020";
-    message.style.display = "block";
-    return;
-  }
-
-  // Loading State
   message.innerText = "⏳ Creating stall owner account and store...";
-  message.style.background = "#e8f1ff";
-  message.style.color = "#1456a0";
-  message.style.display = "block";
+  message.style.background = "#e8f1ff"; message.style.color = "#1456a0"; message.style.display = "block";
 
   try{
-    
-    // NOTE: Make sure "YOUR_FUNCTION_NAME" is correct if you are using Supabase Edge Functions.
-    const { data, error } = await supabaseClient.functions.invoke(
-        "YOUR_FUNCTION_NAME",
-        {
-          body: {
-            store_name: storeName,
-            owner_name: ownerName,
-            owner_email: ownerEmail
-          }
-        }
-    );
+    const { data, error } = await supabaseClient.functions.invoke("YOUR_FUNCTION_NAME", {
+          body: { store_name: storeName, owner_name: ownerName, owner_email: ownerEmail }
+    });
 
-    if(error){
-      console.error(error);
-      message.innerText = "❌ Counter creation failed: " + error.message;
-      message.style.background = "#ffe5e5";
-      message.style.color = "#b00020";
-      message.style.display = "block";
+    if(error || (!data || !data.success)){
+      message.innerText = "❌ Creation failed: " + (error?.message || data?.error || "Unknown error");
+      message.style.background = "#ffe5e5"; message.style.color = "#b00020"; message.style.display = "block";
       return;
     }
 
-    if(!data || !data.success){
-      message.innerText = "❌ Counter creation failed: " + (data?.error || "Unknown error");
-      message.style.background = "#ffe5e5";
-      message.style.color = "#b00020";
-      message.style.display = "block";
-      return;
-    }
+    message.innerHTML = `✅ <b>Counter Created!</b><br>🏪 ${data.store.store_name}<br>👤 ${data.store.owner_name}`;
+    message.style.background = "#e7f7ed"; message.style.color = "#137333"; message.style.display = "block";
 
-    // Success Message
-    message.innerHTML = `
-      ✅ <b>Counter Created Successfully!</b>
-      <br><br>
-      🏪 Counter: ${data.store.store_name}<br>
-      👤 Owner: ${data.store.owner_name}<br>
-      📧 Email: ${data.store.owner_email}<br><br>
-      🆔 Owner UUID:<br>${data.owner_id}<br><br>
-      🏪 Store ID:<br>${data.store.id}
-    `;
-
-    message.style.background = "#e7f7ed";
-    message.style.color = "#137333";
-    message.style.display = "block";
-
-    // Clear inputs
-    document.getElementById("storeName").value = "";
-    document.getElementById("ownerName").value = "";
-    document.getElementById("ownerEmail").value = "";
-
-    // Load counters if the function exists
-    if (typeof loadCounters === "function") {
-      await loadCounters();
-    }
-
-  }catch(error){
-    console.error(error);
-    message.innerText = "❌ Something went wrong: " + error.message;
-    message.style.background = "#ffe5e5";
-    message.style.color = "#b00020";
-    message.style.display = "block";
+    document.getElementById("storeName").value = ""; document.getElementById("ownerName").value = ""; document.getElementById("ownerEmail").value = "";
+  } catch(error){
+    message.innerText = "❌ Error: " + error.message;
+    message.style.background = "#ffe5e5"; message.style.color = "#b00020"; message.style.display = "block";
   }
-
 }
+
+// Run this when page loads
+checkAuthStatus();
 </script>
 
 </body>
