@@ -1,21 +1,91 @@
-/* CREATE COUNTER + CREATE OWNER ACCOUNT */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard | FestCart</title>
 
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+  body { background: #f7f7f8; color: #111; }
+  
+  /* Navigation Bar */
+  .navbar { background-color: #222; padding: 12px 6%; text-align: center; border-bottom: 3px solid #ffb703; display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
+  .navbar a { color: #fff; text-decoration: none; font-weight: bold; font-size: 14px; padding: 5px 10px; border-radius: 5px; transition: background 0.3s; }
+  .navbar a:hover { background-color: #ffb703; color: #111; }
+
+  /* Main Container */
+  .container { max-width: 600px; margin: 50px auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.06); width: 90%; }
+  .container h2 { margin-bottom: 20px; text-align: center; }
+  
+  /* Inputs & Buttons */
+  label { font-weight: bold; display: block; margin-top: 15px; margin-bottom: 5px; }
+  input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; outline: none; }
+  button { width: 100%; margin-top: 25px; padding: 15px; border: 0; border-radius: 30px; background: #111; color: white; font-weight: 800; cursor: pointer; font-size: 16px; transition: 0.3s; }
+  button:hover { background: #ffb703; color: #111; }
+  
+  /* Message Box */
+  #counterMessage { margin-top: 20px; padding: 15px; border-radius: 10px; display: none; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<!-- NAVIGATION MENU -->
+<nav class="navbar">
+    <a href="index.html">🏠 Home / Menu</a>
+    <a href="admin.html">⚙️ Admin Dashboard</a>
+    <a href="COUNTER.HTML">🏪 Counter Owner</a>
+    <a href="track.html">📍 Track Order</a>
+</nav>
+
+<!-- ADMIN DASHBOARD FORM -->
+<div class="container">
+    <h2>⚙️ Create New Counter</h2>
+
+    <label>Store Name</label>
+    <input type="text" id="storeName" placeholder="e.g. Sip and Shake">
+
+    <label>Owner Name</label>
+    <input type="text" id="ownerName" placeholder="e.g. Yash">
+
+    <label>Owner Email</label>
+    <input type="email" id="ownerEmail" placeholder="e.g. yash@example.com">
+
+    <button onclick="createCounter()">Create Counter</button>
+
+    <div id="counterMessage"></div>
+</div>
+
+<!-- JAVASCRIPT LOGIC START -->
+<script>
+/* ==============================
+   SUPABASE CONFIG
+============================== */
+const SUPABASE_URL = "https://pzdtpnvgdbomqmuyzhtv.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_DqbtaPNKSD_1ELESNwy54Q_ForkRGvn";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+/* ==============================
+   CREATE COUNTER FUNCTION
+============================== */
 async function createCounter(){
 
-  const storeName =
-    document.getElementById("storeName").value.trim();
+  const storeName = document.getElementById("storeName").value.trim();
+  const ownerName = document.getElementById("ownerName").value.trim();
+  const ownerEmail = document.getElementById("ownerEmail").value.trim();
+  const message = document.getElementById("counterMessage");
 
-  const ownerName =
-    document.getElementById("ownerName").value.trim();
-
-  const ownerEmail =
-    document.getElementById("ownerEmail").value.trim();
-
-  const message =
-    document.getElementById("counterMessage");
-
+  // Reset message box
   message.style.display = "none";
 
+  // Validation
   if(!storeName){
     message.innerText = "❌ Please enter Counter Name.";
     message.style.background = "#ffe5e5";
@@ -40,19 +110,16 @@ async function createCounter(){
     return;
   }
 
-
-  message.innerText =
-    "⏳ Creating stall owner account and store...";
-
+  // Loading State
+  message.innerText = "⏳ Creating stall owner account and store...";
   message.style.background = "#e8f1ff";
   message.style.color = "#1456a0";
   message.style.display = "block";
 
-
   try{
-
-    const { data, error } =
-      await supabaseClient.functions.invoke(
+    
+    // NOTE: Make sure "YOUR_FUNCTION_NAME" is correct if you are using Supabase Edge Functions.
+    const { data, error } = await supabaseClient.functions.invoke(
         "YOUR_FUNCTION_NAME",
         {
           body: {
@@ -61,98 +128,60 @@ async function createCounter(){
             owner_email: ownerEmail
           }
         }
-      );
-
+    );
 
     if(error){
-
       console.error(error);
-
-      message.innerText =
-        "❌ Counter creation failed: " +
-        error.message;
-
+      message.innerText = "❌ Counter creation failed: " + error.message;
       message.style.background = "#ffe5e5";
       message.style.color = "#b00020";
       message.style.display = "block";
-
       return;
     }
-
 
     if(!data || !data.success){
-
-      message.innerText =
-        "❌ Counter creation failed: " +
-        (data?.error || "Unknown error");
-
+      message.innerText = "❌ Counter creation failed: " + (data?.error || "Unknown error");
       message.style.background = "#ffe5e5";
       message.style.color = "#b00020";
       message.style.display = "block";
-
       return;
     }
 
-
+    // Success Message
     message.innerHTML = `
-
       ✅ <b>Counter Created Successfully!</b>
-
       <br><br>
-
-      🏪 Counter:
-      ${data.store.store_name}
-
-      <br>
-
-      👤 Owner:
-      ${data.store.owner_name}
-
-      <br>
-
-      📧 Email:
-      ${data.store.owner_email}
-
-      <br><br>
-
-      🆔 Owner UUID:
-      <br>
-      ${data.owner_id}
-
-      <br><br>
-
-      🏪 Store ID:
-      <br>
-      ${data.store.id}
-
+      🏪 Counter: ${data.store.store_name}<br>
+      👤 Owner: ${data.store.owner_name}<br>
+      📧 Email: ${data.store.owner_email}<br><br>
+      🆔 Owner UUID:<br>${data.owner_id}<br><br>
+      🏪 Store ID:<br>${data.store.id}
     `;
-
 
     message.style.background = "#e7f7ed";
     message.style.color = "#137333";
     message.style.display = "block";
 
-
+    // Clear inputs
     document.getElementById("storeName").value = "";
     document.getElementById("ownerName").value = "";
     document.getElementById("ownerEmail").value = "";
 
-
-    await loadCounters();
-
+    // Load counters if the function exists
+    if (typeof loadCounters === "function") {
+      await loadCounters();
+    }
 
   }catch(error){
-
     console.error(error);
-
-    message.innerText =
-      "❌ Something went wrong: " +
-      error.message;
-
+    message.innerText = "❌ Something went wrong: " + error.message;
     message.style.background = "#ffe5e5";
     message.style.color = "#b00020";
     message.style.display = "block";
-
   }
 
 }
+</script>
+
+</body>
+</html>
