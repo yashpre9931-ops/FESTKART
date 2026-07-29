@@ -1,1 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login Portal | FestCart</title>
 
+<!-- Supabase SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+  body { background: #f7f7f8; color: #111; }
+  
+  header { position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center; padding: 16px 6%; background: #111; color: white; }
+  .logo { font-size: 25px; font-weight: 800; cursor: pointer; text-decoration: none; color: white;}
+  .logo span { color: #ffb703; }
+
+  .navbar { background-color: #222; padding: 12px 6%; text-align: center; border-bottom: 3px solid #ffb703; display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
+  .navbar a { color: #fff; text-decoration: none; font-weight: bold; font-size: 14px; padding: 5px 10px; border-radius: 5px; transition: background 0.3s; }
+  .navbar a:hover { background-color: #ffb703; color: #111; }
+
+  .container { max-width: 500px; margin: 60px auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.06); width: 90%; text-align: center; }
+  .container h2 { margin-bottom: 10px; }
+  .container p { color: #777; margin-bottom: 25px; font-size: 14px;}
+  
+  /* ROLE SELECTOR STYLES */
+  .role-selector { display: flex; gap: 15px; margin-bottom: 25px; }
+  .role-btn { flex: 1; padding: 15px; border: 2px solid #ddd; border-radius: 10px; cursor: pointer; font-weight: bold; color: #777; transition: 0.3s; }
+  .role-btn.active { border-color: #ffb703; background: #fff9e6; color: #111; }
+
+  label { font-weight: bold; display: block; margin-top: 15px; margin-bottom: 5px; text-align: left;}
+  input { width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 8px; outline: none; font-size: 16px; transition: 0.3s;}
+  input:focus { border-color: #ffb703; }
+
+  .btn-primary { width: 100%; margin-top: 25px; padding: 15px; border: 0; border-radius: 30px; background: #ffb703; color: #111; font-weight: 800; cursor: pointer; font-size: 16px; transition: 0.3s; }
+  .btn-primary:hover { background: #e0a000; }
+
+  #msgBox { margin-top: 20px; padding: 15px; border-radius: 10px; display: none; font-weight: bold; text-align: left; }
+</style>
+</head>
+<body>
+
+<header>
+    <a href="index.html" class="logo">Fest<span>Cart</span></a>
+</header>
+
+<nav class="navbar">
+    <a href="index.html">🏠 Home / Menu</a>
+    <a href="login.html" style="background-color: #ffb703; color: #111;">🔐 Login Portal</a>
+    <a href="track.html">📍 Track Order</a>
+</nav>
+
+<div class="container">
+    <h2>🔐 Master Login Portal</h2>
+    <p>Select your account type to continue.</p>
+
+    <!-- ROLE SELECTION BUTTONS -->
+    <div class="role-selector">
+        <div class="role-btn active" id="btnAdmin" onclick="setRole('admin')">⚙️ Admin</div>
+        <div class="role-btn" id="btnOwner" onclick="setRole('owner')">🏪 Counter Owner</div>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <label>Email Address</label>
+    <input type="email" id="loginEmail" placeholder="Enter your email">
+
+    <label>Password</label>
+    <input type="password" id="loginPassword" placeholder="Enter your password">
+
+    <button class="btn-primary" onclick="handleLogin()">Login Securely</button>
+
+    <div id="msgBox"></div>
+</div>
+
+<script>
+/* ==============================
+   SUPABASE CONFIG
+============================== */
+const SUPABASE_URL = "https://pzdtpnvgdbomqmuyzhtv.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_DqbtaPNKSD_1ELESNwy54Q_ForkRGvn";
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+
+let selectedRole = 'admin'; // Default role
+
+/* ==============================
+   ROLE SELECTION LOGIC
+============================== */
+function setRole(role) {
+    selectedRole = role;
+    
+    // Reset buttons
+    document.getElementById("btnAdmin").classList.remove("active");
+    document.getElementById("btnOwner").classList.remove("active");
+    
+    // Highlight selected button
+    if(role === 'admin') {
+        document.getElementById("btnAdmin").classList.add("active");
+    } else {
+        document.getElementById("btnOwner").classList.add("active");
+    }
+}
+
+/* ==============================
+   LOGIN LOGIC & REDIRECT
+============================== */
+async function handleLogin() {
+    const email = document.getElementById("loginEmail").value.trim();
+    const password = document.getElementById("loginPassword").value.trim();
+    const msg = document.getElementById("msgBox");
+
+    msg.style.display = "none";
+
+    if(!email || !password) {
+        msg.innerHTML = "❌ Please enter email and password.";
+        msg.style.background = "#ffe5e5"; msg.style.color = "#b00020"; msg.style.display = "block";
+        return;
+    }
+
+    msg.innerHTML = "⏳ Authenticating...";
+    msg.style.background = "#e8f1ff"; msg.style.color = "#1456a0"; msg.style.display = "block";
+
+    // Call Supabase to Login
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+        email: email,
+        password: password,
+    });
+
+    if (error) {
+        msg.innerHTML = "❌ Login Failed: " + error.message;
+        msg.style.background = "#ffe5e5"; msg.style.color = "#b00020";
+    } else {
+        msg.innerHTML = "✅ Login Successful! Redirecting...";
+        msg.style.background = "#e7f7ed"; msg.style.color = "#137333";
+        
+        // REDIRECT BASED ON ROLE MAGIC ✨
+        setTimeout(() => {
+            if(selectedRole === 'admin') {
+                window.location.href = "admin.html";
+            } else {
+                window.location.href = "COUNTER.HTML";
+            }
+        }, 1000); // 1 second delay so user can see success message
+    }
+}
+
+/* ==============================
+   AUTO REDIRECT IF ALREADY LOGGED IN
+============================== */
+async function checkAlreadyLoggedIn() {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session) {
+        // If they are already logged in, we can safely just send them to their dashboard.
+        // For simplicity, we just leave them on the login page until they choose to logout from their dashboard, 
+        // OR we can add a message saying "You are already logged in".
+    }
+}
+checkAlreadyLoggedIn();
+</script>
+
+</body>
+</html>
