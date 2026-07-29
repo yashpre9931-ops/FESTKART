@@ -53,6 +53,33 @@ header{
   cursor:pointer;
 }
 
+/* NAVIGATION BAR STYLE */
+.navbar {
+  background-color: #222;
+  padding: 12px 6%;
+  text-align: center;
+  border-bottom: 3px solid #ffb703;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+}
+
+.navbar a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 14px;
+  padding: 5px 10px;
+  border-radius: 5px;
+  transition: background 0.3s;
+}
+
+.navbar a:hover {
+  background-color: #ffb703;
+  color: #111;
+}
+
 .hero{
   padding:75px 7%;
   text-align:center;
@@ -280,6 +307,11 @@ footer{
   padding:60px 20px;
 }
 
+.navbar {
+  flex-direction: column;
+  gap: 10px;
+}
+
 }
 
 </style>
@@ -298,6 +330,15 @@ Fest<span>Cart</span>
 </button>
 
 </header>
+
+<!-- NAVIGATION MENU ADDED HERE -->
+<nav class="navbar">
+    <a href="index.html">🏠 Home / Menu</a>
+    <a href="admin.html">⚙️ Admin Dashboard</a>
+    <a href="COUNTER.HTML">🏪 Counter Owner</a>
+    <a href="track.html">📍 Track Order</a>
+</nav>
+<!-- NAVIGATION MENU END -->
 
 
 <section class="hero">
